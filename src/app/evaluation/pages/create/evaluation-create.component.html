@@ -1,0 +1,233 @@
+<section class="space-y-8">
+  <div class="flex flex-col gap-2">
+    <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Instructor Workspace</p>
+    <h2 class="text-3xl font-semibold text-slate-900">Create Evaluation</h2>
+  </div>
+
+  <mat-card class="rounded-3xl border border-slate-100 shadow-sm">
+    <mat-card-content>
+      <mat-stepper linear class="bg-transparent">
+        <mat-step [stepControl]="detailsGroup">
+          <form [formGroup]="detailsGroup">
+            <ng-template matStepLabel>Core details</ng-template>
+            <div class="grid gap-6 md:grid-cols-2">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Title</mat-label>
+                <input matInput placeholder="Evaluation title" formControlName="title">
+                <mat-error>Title is required.</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Course</mat-label>
+                <input matInput placeholder="Course name" formControlName="course">
+                <mat-error>Course is required.</mat-error>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Description</mat-label>
+              <textarea
+                matInput
+                rows="4"
+                placeholder="What will learners be evaluated on?"
+                formControlName="description"
+              ></textarea>
+              <mat-error>Description is required.</mat-error>
+            </mat-form-field>
+
+            <div class="mt-6 flex justify-end">
+              <button mat-flat-button color="primary" matStepperNext>Continue</button>
+            </div>
+          </form>
+        </mat-step>
+
+        <mat-step [stepControl]="settingsGroup">
+          <form [formGroup]="settingsGroup">
+            <ng-template matStepLabel>Settings</ng-template>
+            <div class="grid gap-6 md:grid-cols-3">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Evaluation type</mat-label>
+                <mat-select formControlName="type">
+                  <mat-option value="Quiz">Quiz</mat-option>
+                  <mat-option value="Exam">Exam</mat-option>
+                  <mat-option value="Assignment">Assignment</mat-option>
+                </mat-select>
+                <mat-error>Type is required.</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Duration (minutes)</mat-label>
+                <input matInput type="number" formControlName="durationMinutes">
+                <mat-error>Duration must be at least 5 minutes.</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Passing score (%)</mat-label>
+                <input matInput type="number" formControlName="passingScore">
+                <mat-error>Score must be between 0 and 100.</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="mt-6 flex justify-between">
+              <button mat-stroked-button matStepperPrevious>Back</button>
+              <button mat-flat-button color="primary" matStepperNext>Continue</button>
+            </div>
+          </form>
+        </mat-step>
+
+        <mat-step [stepControl]="questions">
+          <ng-template matStepLabel>Questions</ng-template>
+          <div class="space-y-6">
+            @for (question of questions.controls; track trackByIndex($index); let i = $index) {
+              <mat-card class="rounded-3xl border border-slate-100 shadow-sm">
+                <mat-card-content [formGroup]="question">
+                  <div class="flex items-start justify-between gap-4">
+                    <div>
+                      <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Question {{ i + 1 }}</p>
+                      <h3 class="mt-2 text-lg font-semibold text-slate-900">Build prompt</h3>
+                    </div>
+                    <button
+                      mat-icon-button
+                      color="warn"
+                      (click)="removeQuestion(i)"
+                      matTooltip="Remove question"
+                      [disabled]="questions.length === 1"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+
+                  <div class="mt-6 grid gap-6 md:grid-cols-3">
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-label>Question type</mat-label>
+                      <mat-select formControlName="type" (selectionChange)="onQuestionTypeChange(i)">
+                        <mat-option value="MCQ">MCQ</mat-option>
+                        <mat-option value="TrueFalse">True / False</mat-option>
+                        <mat-option value="ShortAnswer">Short answer</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-label>Points</mat-label>
+                      <input matInput type="number" formControlName="points">
+                      <mat-error>Points must be at least 1.</mat-error>
+                    </mat-form-field>
+                  </div>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Prompt</mat-label>
+                    <textarea matInput rows="3" formControlName="prompt"></textarea>
+                    <mat-error>Prompt is required.</mat-error>
+                  </mat-form-field>
+
+                  @if (question.get('type')?.value === 'MCQ') {
+                    <div class="space-y-4">
+                      <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Options</p>
+                      <div formArrayName="options" class="grid gap-3 md:grid-cols-2">
+                        @for (option of getOptionsControls(i); track trackByIndex($index); let o = $index) {
+                          <div class="flex items-center gap-2">
+                            <mat-form-field appearance="outline" class="w-full">
+                              <mat-label>Option {{ o + 1 }}</mat-label>
+                              <input matInput [formControlName]="o" placeholder="Option text">
+                              <mat-error>Option is required.</mat-error>
+                            </mat-form-field>
+                            <button mat-icon-button color="warn" (click)="removeOption(i, o)" [disabled]="getOptionsLength(i) <= 2">
+                              <mat-icon>close</mat-icon>
+                            </button>
+                          </div>
+                        }
+                      </div>
+                      <button mat-stroked-button color="primary" (click)="addOption(i)">
+                        <mat-icon>add</mat-icon>
+                        Add option
+                      </button>
+
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Correct answer</mat-label>
+                        <mat-select formControlName="correctAnswer">
+                          @for (option of getOptionsControls(i); track trackByIndex($index); let o = $index) {
+                            <mat-option [value]="option.value">Option {{ o + 1 }}</mat-option>
+                          }
+                        </mat-select>
+                        <mat-error>Select a correct answer.</mat-error>
+                      </mat-form-field>
+                    </div>
+                  }
+
+                  @if (question.get('type')?.value === 'TrueFalse') {
+                    <div class="mt-4">
+                      <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Correct answer</p>
+                      <mat-radio-group formControlName="correctAnswer" class="flex gap-6">
+                        <mat-radio-button [value]="true">True</mat-radio-button>
+                        <mat-radio-button [value]="false">False</mat-radio-button>
+                      </mat-radio-group>
+                    </div>
+                  }
+
+                  @if (question.get('type')?.value === 'ShortAnswer') {
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-label>Expected answer</mat-label>
+                      <input matInput formControlName="correctAnswer" placeholder="Keyword or phrase">
+                    </mat-form-field>
+                  }
+                </mat-card-content>
+              </mat-card>
+            }
+
+            <button mat-flat-button color="primary" (click)="addQuestion()">
+              <mat-icon>add_circle</mat-icon>
+              Add another question
+            </button>
+          </div>
+
+          <div class="mt-6 flex justify-between">
+            <button mat-stroked-button matStepperPrevious>Back</button>
+            <button mat-flat-button color="primary" matStepperNext>Review</button>
+          </div>
+        </mat-step>
+
+        <mat-step>
+          <ng-template matStepLabel>Review & publish</ng-template>
+          <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+            <h3 class="text-xl font-semibold text-slate-900">Evaluation summary</h3>
+            <p class="mt-2 text-sm text-slate-500">
+              Double check the outline before publishing. All fields can still be adjusted later.
+            </p>
+
+            <div class="mt-6 grid gap-6 md:grid-cols-2">
+              <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Title</p>
+                <p class="mt-2 text-base font-semibold text-slate-900">{{ detailsGroup.get('title')?.value }}</p>
+                <p class="mt-2 text-sm text-slate-500">{{ detailsGroup.get('description')?.value }}</p>
+              </div>
+              <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Settings</p>
+                <p class="mt-2 text-sm text-slate-600">Course: {{ detailsGroup.get('course')?.value }}</p>
+                <p class="mt-1 text-sm text-slate-600">Type: {{ settingsGroup.get('type')?.value }}</p>
+                <p class="mt-1 text-sm text-slate-600">Duration: {{ settingsGroup.get('durationMinutes')?.value }} min</p>
+                <p class="mt-1 text-sm text-slate-600">Passing score: {{ settingsGroup.get('passingScore')?.value }}%</p>
+              </div>
+            </div>
+
+            <mat-divider class="my-6"></mat-divider>
+
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Question count</p>
+                <p class="mt-2 text-2xl font-semibold text-slate-900">{{ questions.length }}</p>
+              </div>
+              <button mat-flat-button color="primary" (click)="saveEvaluation()">
+                Publish evaluation
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-6 flex justify-between">
+            <button mat-stroked-button matStepperPrevious>Back</button>
+            <button mat-button routerLink="/evaluation/dashboard">Cancel</button>
+          </div>
+        </mat-step>
+      </mat-stepper>
+    </mat-card-content>
+  </mat-card>
+</section>

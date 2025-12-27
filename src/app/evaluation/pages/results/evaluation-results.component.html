@@ -1,0 +1,88 @@
+<section class="space-y-8">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Evaluation Results</p>
+      <h2 class="text-3xl font-semibold text-slate-900">{{ evaluation?.title }}</h2>
+      <p class="text-sm text-slate-500">{{ evaluation?.course }}</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em]" [class]="passTone">
+        {{ passLabel }}
+      </span>
+      <button mat-stroked-button color="primary" routerLink="/evaluation/dashboard">
+        Back to dashboard
+      </button>
+    </div>
+  </div>
+
+  <div class="grid gap-6 lg:grid-cols-3">
+    <mat-card class="rounded-3xl border border-slate-100 shadow-sm lg:col-span-2">
+      <mat-card-content>
+        <div class="flex flex-wrap items-center justify-between gap-6">
+          <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Score summary</p>
+            <h3 class="mt-2 text-4xl font-semibold text-slate-900">{{ result?.score ?? 0 }}%</h3>
+            <p class="mt-2 text-sm text-slate-500">
+              {{ result?.correctCount ?? 0 }} of {{ result?.totalQuestions ?? 0 }} questions correct
+            </p>
+          </div>
+          <div class="relative h-36 w-36">
+            <svg viewBox="0 0 120 120" class="h-full w-full">
+              <circle cx="60" cy="60" r="54" stroke="#e2e8f0" stroke-width="12" fill="none"></circle>
+              <circle
+                cx="60"
+                cy="60"
+                r="54"
+                stroke="#6366f1"
+                stroke-width="12"
+                fill="none"
+                stroke-linecap="round"
+                [attr.stroke-dasharray]="circleCircumference"
+                [attr.stroke-dashoffset]="chartOffset"
+                transform="rotate(-90 60 60)"
+              ></circle>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span class="text-sm uppercase tracking-[0.2em] text-slate-400">Score</span>
+              <span class="text-2xl font-semibold text-slate-900">{{ result?.score ?? 0 }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Progress</p>
+          <mat-progress-bar [value]="result?.score ?? 0" color="primary"></mat-progress-bar>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="rounded-3xl border border-slate-100 shadow-sm">
+      <mat-card-content>
+        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Evaluation facts</p>
+        <div class="mt-4 space-y-4">
+          <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Passing score</p>
+            <p class="mt-2 text-xl font-semibold text-slate-900">{{ result?.passingScore ?? 0 }}%</p>
+          </div>
+          <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Type</p>
+            <p class="mt-2 text-sm font-semibold text-slate-700">{{ evaluation?.type }}</p>
+          </div>
+          <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Duration</p>
+            <p class="mt-2 text-sm font-semibold text-slate-700">{{ evaluation?.durationMinutes }} mins</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="space-y-4">
+    <h3 class="text-xl font-semibold text-slate-900">Detailed review</h3>
+    <div class="grid gap-4">
+      @for (review of result?.reviews ?? []; track review.questionId) {
+        <app-evaluation-question-review [review]="review"></app-evaluation-question-review>
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,158 @@
+<section class="space-y-8">
+  <div class="flex flex-col gap-2">
+    <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Evaluation Module</p>
+    <div class="flex items-center justify-between">
+      <h2 class="text-3xl font-semibold text-slate-900">Evaluation Dashboard</h2>
+      <button mat-flat-button color="primary" routerLink="/evaluation/create">
+        <mat-icon>add</mat-icon>
+        Create evaluation
+      </button>
+    </div>
+  </div>
+
+  <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+    <mat-card class="rounded-3xl border border-slate-100 shadow-sm">
+      <mat-card-content class="flex items-center justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Total</p>
+          <p class="mt-2 text-3xl font-semibold text-slate-900">{{ stats?.total ?? 0 }}</p>
+        </div>
+        <div class="rounded-2xl bg-indigo-50 p-3 text-indigo-600">
+          <mat-icon>assignment</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="rounded-3xl border border-slate-100 shadow-sm">
+      <mat-card-content class="flex items-center justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Completed</p>
+          <p class="mt-2 text-3xl font-semibold text-slate-900">{{ stats?.completed ?? 0 }}</p>
+        </div>
+        <div class="rounded-2xl bg-emerald-50 p-3 text-emerald-600">
+          <mat-icon>verified</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="rounded-3xl border border-slate-100 shadow-sm">
+      <mat-card-content class="flex items-center justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Pending</p>
+          <p class="mt-2 text-3xl font-semibold text-slate-900">{{ stats?.pending ?? 0 }}</p>
+        </div>
+        <div class="rounded-2xl bg-amber-50 p-3 text-amber-600">
+          <mat-icon>schedule</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="rounded-3xl border border-slate-100 shadow-sm">
+      <mat-card-content class="flex items-center justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Average Score</p>
+          <p class="mt-2 text-3xl font-semibold text-slate-900">{{ stats?.averageScore ?? 0 }}%</p>
+        </div>
+        <div class="rounded-2xl bg-sky-50 p-3 text-sky-600">
+          <mat-icon>insights</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-card class="rounded-3xl border border-slate-100 shadow-sm">
+    <mat-card-content>
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-slate-900">Upcoming Evaluations</h3>
+        <button mat-stroked-button color="primary" routerLink="/evaluation/create">Add new</button>
+      </div>
+
+      <div class="mt-6 overflow-hidden rounded-2xl border border-slate-100">
+        <table mat-table [dataSource]="dataSource" matSort class="w-full">
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Title</th>
+            <td mat-cell *matCellDef="let evaluation">
+              <div>
+                <p class="font-medium text-slate-900">{{ evaluation.title }}</p>
+                <p class="text-xs text-slate-500">{{ evaluation.description }}</p>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="course">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Course</th>
+            <td mat-cell *matCellDef="let evaluation">{{ evaluation.course }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+            <td mat-cell *matCellDef="let evaluation">
+              <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                {{ evaluation.type }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let evaluation">
+              <app-evaluation-status-chip [status]="evaluation.status"></app-evaluation-status-chip>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="score">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Score</th>
+            <td mat-cell *matCellDef="let evaluation">
+              <span class="font-semibold text-slate-800">
+                {{ evaluation.score ?? '--' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let evaluation">
+              <div class="flex flex-wrap gap-2">
+                <button
+                  mat-button
+                  color="primary"
+                  (click)="viewDetails(evaluation)"
+                  matTooltip="View evaluation details"
+                >
+                  View
+                </button>
+                <button
+                  mat-flat-button
+                  color="primary"
+                  (click)="startEvaluation(evaluation)"
+                  [disabled]="!canStart(evaluation.status)"
+                >
+                  Start
+                </button>
+                <button
+                  mat-stroked-button
+                  color="primary"
+                  (click)="viewResults(evaluation)"
+                  [disabled]="!canViewResults(evaluation.status)"
+                >
+                  Results
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+
+      <mat-paginator
+        class="mt-4"
+        [length]="dataSource.data.length"
+        [pageSize]="5"
+        [pageSizeOptions]="[5, 10, 20]"
+        showFirstLastButtons
+      ></mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</section>

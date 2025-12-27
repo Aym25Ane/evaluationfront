@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>Submit evaluation?</h2>
+<mat-dialog-content>
+  <p class="text-sm text-slate-600">
+    You are about to submit your responses. You will not be able to edit answers after
+    submission.
+  </p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Review</button>
+  <button mat-flat-button color="primary" [mat-dialog-close]="true">Submit now</button>
+</mat-dialog-actions>

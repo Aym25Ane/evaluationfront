@@ -1,0 +1,114 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-2">
+    <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Student Workspace</p>
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h2 class="text-3xl font-semibold text-slate-900">{{ evaluation?.title }}</h2>
+        <p class="text-sm text-slate-500">{{ evaluation?.course }} · {{ evaluation?.type }}</p>
+      </div>
+      <div class="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+        <div>
+          <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Time left</p>
+          <p class="text-xl font-semibold text-slate-900">{{ formatTimer() }}</p>
+        </div>
+        <div class="h-10 w-px bg-slate-200"></div>
+        <div>
+          <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Answered</p>
+          <p class="text-xl font-semibold text-slate-900">{{ answeredCount }}/{{ questions.length }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <mat-progress-bar [value]="progressValue" color="primary"></mat-progress-bar>
+
+  <div class="grid gap-6 lg:grid-cols-[1.5fr_0.7fr]">
+    <mat-card class="rounded-3xl border border-slate-100 shadow-sm">
+      <mat-card-content>
+        @if (activeQuestion) {
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <p class="text-xs uppercase tracking-[0.2em] text-slate-400">
+                Question {{ activeIndex + 1 }} of {{ questions.length }}
+              </p>
+              <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                {{ activeQuestion.type }} · {{ activeQuestion.points }} pts
+              </span>
+            </div>
+            <h3 class="text-xl font-semibold text-slate-900">{{ activeQuestion.prompt }}</h3>
+
+            @if (activeQuestion.type === 'MCQ') {
+              <div class="grid gap-3">
+                @for (option of activeQuestion.options; track option.id) {
+                  <label class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                    <input
+                      type="radio"
+                      [value]="option.id"
+                      [checked]="answerControl.value === option.id"
+                      (change)="answerControl.setValue(option.id); saveAnswer()"
+                    >
+                    <span class="text-sm font-medium text-slate-700">{{ option.text }}</span>
+                  </label>
+                }
+              </div>
+            }
+
+            @if (activeQuestion.type === 'TrueFalse') {
+              <mat-radio-group class="flex gap-6" [formControl]="answerControl" (change)="saveAnswer()">
+                <mat-radio-button [value]="true">True</mat-radio-button>
+                <mat-radio-button [value]="false">False</mat-radio-button>
+              </mat-radio-group>
+            }
+
+            @if (activeQuestion.type === 'ShortAnswer') {
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Your answer</mat-label>
+                <input matInput [formControl]="answerControl" (blur)="saveAnswer()">
+              </mat-form-field>
+            }
+          </div>
+        }
+
+        <div class="mt-6 flex items-center justify-between">
+          <button mat-stroked-button (click)="previousQuestion()" [disabled]="activeIndex === 0">
+            <mat-icon>chevron_left</mat-icon>
+            Previous
+          </button>
+          <button mat-flat-button color="primary" (click)="nextQuestion()" [disabled]="activeIndex === questions.length - 1">
+            Next
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="rounded-3xl border border-slate-100 shadow-sm">
+      <mat-card-content>
+        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Navigator</p>
+        <div class="mt-4 grid grid-cols-4 gap-3">
+          @for (question of questions; track question.id; let i = $index) {
+            <button
+              mat-stroked-button
+              [color]="answers[question.id] ? 'primary' : undefined"
+              (click)="goToQuestion(i)"
+              [class.border-indigo-500]="i === activeIndex"
+            >
+              {{ i + 1 }}
+            </button>
+          }
+        </div>
+
+        <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <p class="text-sm font-semibold text-slate-700">Auto-save enabled</p>
+          <p class="mt-1 text-xs text-slate-500">
+            Your responses are saved after each selection.
+          </p>
+        </div>
+
+        <button mat-flat-button color="primary" class="mt-6 w-full" (click)="openSubmitDialog()">
+          Submit evaluation
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>
