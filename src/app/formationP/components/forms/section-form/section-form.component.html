@@ -1,0 +1,52 @@
+<div class="card shadow-sm">
+  <div class="card-header bg-light">
+    <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2 text-secondary"></i>Édition de la Section</h5>
+  </div>
+  <div class="card-body p-4">
+    <div class="row g-4">
+      <!-- ... (champs titre et type de contenu) ... -->
+      <div class="col-12"><label for="sectionTitre" class="form-label fw-bold">Titre :</label><input type="text" id="sectionTitre" class="form-control" [(ngModel)]="section.titre" name="sectionTitre"></div>
+      <div class="col-12"><label for="typeContenu" class="form-label fw-bold">Type de Contenu :</label><select id="typeContenu" class="form-select" [(ngModel)]="section.typeContenu" name="typeContenu" (change)="onTypeContenuChange()"><option *ngFor="let type of typeContenuOptions" [value]="type">{{ type }}</option></select></div>
+
+      @if (section.typeContenu === 'TEXTE') {
+        <div class="col-12">
+          <label for="contenuTexte" class="form-label fw-bold">Contenu Texte :</label>
+          <textarea id="contenuTexte" class="form-control" [(ngModel)]="section.contenu" name="contenuTexte" rows="8"></textarea>
+        </div>
+      }
+
+      @if (section.typeContenu === 'IMAGE' || section.typeContenu === 'VIDEO') {
+        <div class="col-12">
+          <label class="form-label fw-bold">{{ section.typeContenu === 'IMAGE' ? 'Fichier Image' : 'Fichier Vidéo' }}</label>
+
+          <input type="file" class="form-control" (change)="onFileSelected($event)" [attr.accept]="section.typeContenu === 'IMAGE' ? 'image/*' : 'video/*'" [disabled]="isUploading()">
+
+          @if (isUploading()) {
+            <div class="d-flex align-items-center mt-2 text-primary">
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              <strong>Téléversement en cours...</strong>
+            </div>
+          } @else {
+            <div class="form-text">Uploadez un nouveau fichier pour remplacer l'actuel.</div>
+          }
+
+          <div class="preview-container mt-3">
+            @if (filePreview()) {
+              <div class="file-preview border rounded p-2 text-center d-inline-block">
+                @if (section.typeContenu === 'IMAGE') {
+                  <img [src]="filePreview()!" alt="Aperçu" class="img-fluid rounded" style="max-height: 200px;">
+                } @else if (section.typeContenu === 'VIDEO') {
+                  <video [src]="filePreview()!" controls class="img-fluid rounded" style="max-height: 200px;"></video>
+                }
+              </div>
+            } @else if(section.contenu) {
+              <div class="file-preview border rounded p-2 text-center d-inline-block bg-light">
+                <div class="text-muted p-3"><i class="bi bi-paperclip me-2"></i>{{ section.contenu }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

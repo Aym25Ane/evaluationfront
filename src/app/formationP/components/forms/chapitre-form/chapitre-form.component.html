@@ -1,0 +1,23 @@
+<!-- src/app/forms/chapitre-form/chapitre-form.component.html -->
+
+<div class="card shadow-sm border-0">
+  <div class="card-header bg-white border-bottom p-3">
+    <h5 class="mb-0 text-dark">
+      <i class="bi bi-book me-2"></i>
+      Détails du Chapitre
+    </h5>
+  </div>
+  <div class="card-body p-4">
+
+    <!-- Champ : Titre du Chapitre -->
+    <div class="mb-4">
+      <label for="chapitreTitre" class="form-label fw-bold">Titre du Chapitre :</label>
+      <input type="text" id="chapitreTitre" class="form-control form-control-lg"
+             [(ngModel)]="chapitre.titre"
+             (ngModelChange)="onModelChange()"
+             name="chapitreTitre"
+             placeholder="Ex: Mise en place de l'environnement">
+    </div>
+
+  </div>
+</div>

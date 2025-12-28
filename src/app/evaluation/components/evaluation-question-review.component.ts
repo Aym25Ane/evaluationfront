@@ -6,6 +6,7 @@ import { QuestionReview } from '../models/evaluation.models';
   selector: 'app-evaluation-question-review',
   imports: [MatIconModule],
   templateUrl: './evaluation-question-review.component.html',
+  standalone: true,
   styleUrl: './evaluation-question-review.component.scss'
 })
 export class EvaluationQuestionReviewComponent {

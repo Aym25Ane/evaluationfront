@@ -1,0 +1,10 @@
+/* src/app/forms/chapitre-form/chapitre-form.component.css */
+
+/* Styles pour maintenir l'uniformité visuelle de la carte d'édition */
+.card-header {
+  background-color: #f8f9fa !important;
+}
+
+.card {
+  border: 1px solid #e9ecef;
+}

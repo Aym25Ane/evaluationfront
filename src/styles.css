@@ -2,6 +2,8 @@
 
 @import "@angular/material/prebuilt-themes/indigo-pink.css";
 @import "tailwindcss";
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "bootstrap-icons/font/bootstrap-icons.css";
 
 :root {
   color-scheme: light;

@@ -20,6 +20,7 @@ import { EvaluationService } from '../../services/evaluation.service';
     EvaluationQuestionReviewComponent
   ],
   templateUrl: './evaluation-results.component.html',
+  standalone: true,
   styleUrl: './evaluation-results.component.scss'
 })
 export class EvaluationResultsComponent implements OnInit {

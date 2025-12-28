@@ -1,0 +1,43 @@
+<div class="container">
+  <div class="header-actions">
+    <h2>📚 Formations disponibles</h2>
+    <button class="create-btn" (click)="create()">+ Nouvelle Formation</button>
+  </div>
+
+  @if(loading) {
+    <p style="text-align:center; color: #666;">Chargement des données...</p>
+  } @else {
+    <div class="cards">
+      @for(f of formations; track f.id!) {
+        <div class="card">
+          <!-- Si pas d'image, on peut mettre un placeholder coloré ou une image par défaut -->
+          <img class="banner" [src]="f.image || 'https://placehold.co/600x400/e0e0e0/333?text=Formation' " alt="Image formation"/>
+
+          <h3>{{ f.titre }}</h3>
+          <p class="desc">{{ f.description || 'Aucune description disponible pour le moment.' }}</p>
+          <p class="meta">🕒 Maj : {{ f.derniereMiseAJour | date:'dd/MM/yyyy' }}</p>
+
+          <div class="actions">
+            <button class="view-btn" (click)="viewFormation(f)">👁️ Voir</button>
+            <button class="edit-btn" (click)="edit(f.id!)">✏️ Éditer</button>
+            <button class="delete-btn" (click)="delete(f.id!)">🗑️</button>
+          </div>
+        </div>
+      } @empty {
+        <div style="grid-column: 1/-1; text-align: center; padding: 50px;">
+          <p>Aucune formation trouvée. Commencez par en créer une !</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if(showFormationView) {
+  <div class="modal" (click)="showFormationView = false">
+    <div (click)="$event.stopPropagation()" style="display: contents;">
+      <app-formation-view [formation]="selectedFormation">
+      </app-formation-view>
+      <button class="close-btn" (click)="showFormationView = false">✖</button>
+    </div>
+  </div>
+}

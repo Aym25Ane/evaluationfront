@@ -1,0 +1,20 @@
+/* src/app/forms/section-form/section-form.component.css */
+
+/* Styles pour maintenir l'uniformité visuelle de la carte d'édition */
+.card-header {
+  background-color: #f8f9fa !important;
+}
+
+.card {
+  border: 1px solid #e9ecef;
+}
+
+/* Style spécifique pour le placeholder de l'éditeur riche */
+.editor-rich-placeholder {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: #6c757d; /* text-secondary */
+  border: 2px dashed #ced4da; /* Bordure plus visible pour montrer que c'est une zone spéciale */
+  padding: 1.5rem !important;
+  min-height: 250px;
+}

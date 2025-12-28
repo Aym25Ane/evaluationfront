@@ -1,0 +1,10 @@
+/* src/app/forms/course-form/course-form.component.css */
+
+/* Surcharge discrète des styles de carte si nécessaire pour l'uniformité */
+.card-header {
+  background-color: #f8f9fa !important; /* Gris très clair */
+}
+
+.card {
+  border: 1px solid #e9ecef;
+}

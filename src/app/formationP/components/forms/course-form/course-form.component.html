@@ -1,0 +1,33 @@
+<!-- src/app/forms/course-form/course-form.component.html -->
+
+<div class="card shadow-sm border-0">
+  <div class="card-header bg-white border-bottom p-3">
+    <h5 class="mb-0 text-primary">
+      <i class="bi bi-journal-bookmark-fill me-2"></i>
+      Détails du Cours
+    </h5>
+  </div>
+  <div class="card-body p-4">
+
+    <!-- Champ : Titre du Cours -->
+    <div class="mb-4">
+      <label for="coursTitre" class="form-label fw-bold">Titre du Cours :</label>
+      <input type="text" id="coursTitre" class="form-control form-control-lg"
+             [(ngModel)]="cours.titre"
+             (ngModelChange)="onModelChange()"
+             name="coursTitre"
+             placeholder="Ex: Les Fondamentaux du TypeScript">
+    </div>
+
+    <!-- Champ : Résumé du Cours -->
+    <div class="mb-3">
+      <label for="coursResume" class="form-label fw-bold">Résumé (Objectifs) :</label>
+      <textarea id="coursResume" class="form-control" rows="5"
+                [(ngModel)]="cours.resume"
+                (ngModelChange)="onModelChange()"
+                name="coursResume"
+                placeholder="Décrivez en quelques lignes ce que l'étudiant apprendra dans ce cours."></textarea>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,78 @@
+@if(formationComputed(); as f) {
+  <div class="formation-container">
+    <!-- En-tête -->
+    @if(f.image) {
+      <img [src]="f.image" [alt]="f.titre" class="formation-image">
+    }
+    <h2>{{ f.titre }}</h2>
+
+    <div style="margin-bottom: 20px; color: #666; font-size: 0.9em;">
+      <span>📅 Mis à jour le : {{ formatDate(f.derniereMiseAJour) }}</span>
+      @if(f.niveau) {
+        <span style="margin-left: 15px;">📊 Niveau : <strong>{{ f.niveau }}</strong></span>
+      }
+    </div>
+
+    @if(f.description) {
+      <p style="font-size: 1.1em;">{{ f.description }}</p>
+    }
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+
+    <!-- Liste des Cours -->
+    @for(cours of f.cours ?? []; track cours.id) {
+      <div class="cours-container">
+        <h3>📚 {{ cours.titre }}</h3>
+
+        @if(cours.resume) {
+          <p style="font-style: italic; color: #777;">{{ cours.resume }}</p>
+        }
+
+        <!-- Liste des Chapitres -->
+        <div style="margin-top: 20px;">
+          @for(chapitre of cours.chapitres ?? []; track chapitre.id) {
+            <div class="chapitre-container">
+
+              <!-- Header Cliquable -->
+              <div class="chapitre-header" (click)="toggleChapter(chapitre)">
+                {{ chapitre.titre }}
+                <!-- Icône qui change selon l'état -->
+                <span>{{ isChapterOpen(chapitre) ? '−' : '+' }}</span>
+              </div>
+
+              <!-- Contenu déroulant -->
+              @if(isChapterOpen(chapitre)) {
+                <div class="chapitre-content">
+                  @for(section of chapitre.sections ?? []; track section.id) {
+                    <div class="section-item">
+                      <strong>{{ section.typeContenu }}</strong>
+
+                      @if(section.typeContenu === 'TEXTE') {
+                        <p>{{ section.contenu }}</p>
+                      }
+                      @if(section.typeContenu === 'VIDEO') {
+                        <video controls>
+                          <source [src]="section.contenu" type="video/mp4">
+                          Votre navigateur ne supporte pas la vidéo.
+                        </video>
+                      }
+                      @if(section.typeContenu === 'IMAGE') {
+                        <img [src]="'img.png'" alt="Image section" style="max-width: 100%; border-radius: 4px;">
+                      }
+                    </div>
+                  } @empty {
+                    <p>Aucun contenu dans ce chapitre.</p>
+                  }
+                </div>
+              }
+            </div>
+          } @empty {
+            <p>Aucun chapitre pour le moment.</p>
+          }
+        </div>
+      </div>
+    } @empty {
+      <p>Aucun cours associé à cette formation.</p>
+    }
+  </div>
+}

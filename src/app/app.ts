@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import {Navbar} from './navbar/navbar';
 
 @Component({
   selector: 'app-root',
@@ -12,9 +13,11 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatToolbarModule,
     RouterLink,
     RouterLinkActive,
-    RouterOutlet
+    RouterOutlet,
+    Navbar
   ],
   templateUrl: './app.html',
+  standalone: true,
   styleUrl: './app.css'
 })
 export class App {

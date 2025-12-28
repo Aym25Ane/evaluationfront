@@ -1,0 +1,111 @@
+/* Container interne */
+.formation-container {
+  padding: 30px;
+  color: #333;
+}
+
+/* En-tête de la vue détail */
+.formation-container h2 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #3f51b5;
+  padding-bottom: 15px;
+  display: inline-block;
+}
+
+.formation-image {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+/* Informations générales */
+p {
+  line-height: 1.6;
+  color: #555;
+}
+
+/* COURS */
+.cours-container {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 30px;
+  border: 1px solid #e9ecef;
+}
+
+.cours-container h3 {
+  color: #3f51b5;
+  margin-top: 0;
+}
+
+/* CHAPITRES (Accordéon) */
+.chapitre-container {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+/* Le titre du chapitre (la barre cliquable) */
+.chapitre-header {
+  padding: 15px 20px;
+  margin: 0;
+  background-color: #fff;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.chapitre-header:hover {
+  background-color: #f0f4ff;
+}
+
+.chapitre-header span {
+  font-size: 1.2rem;
+  color: #3f51b5;
+  font-weight: bold;
+}
+
+/* Contenu du chapitre (ouvert) */
+.chapitre-content {
+  padding: 20px;
+  background-color: #fafafa;
+  border-top: 1px solid #eee;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* SECTION */
+.section-item {
+  margin-bottom: 15px;
+  padding-left: 15px;
+  border-left: 3px solid #3f51b5;
+}
+
+.section-item strong {
+  display: block;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 5px;
+}
+
+/* Vidéo responsive */
+video {
+  width: 100%;
+  max-width: 600px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}

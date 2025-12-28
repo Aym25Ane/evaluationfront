@@ -27,6 +27,7 @@ import { EvaluationService } from '../../services/evaluation.service';
     ReactiveFormsModule
   ],
   templateUrl: './evaluation-take.component.html',
+  standalone: true,
   styleUrl: './evaluation-take.component.scss'
 })
 export class EvaluationTakeComponent implements OnInit, OnDestroy {

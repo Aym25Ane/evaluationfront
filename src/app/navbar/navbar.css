@@ -1,0 +1,203 @@
+/* --- Variables & Configuration --- */
+:host {
+  --nav-bg: rgba(15, 23, 42, 0.95); /* Bleu nuit profond presque opaque */
+  --nav-text: #e2e8f0;
+  --primary-color: #6366f1; /* Indigo vibrant */
+  --hover-bg: rgba(255, 255, 255, 0.1);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Navbar Container */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  height: 70px;
+  background: var(--nav-bg);
+  color: var(--nav-text);
+  box-shadow: var(--shadow);
+
+  /* Effet sticky et flou */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px); /* Effet verre dépoli */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Logo */
+.logo a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Petit accent coloré dans le logo */
+.brand-accent {
+  color: var(--primary-color);
+}
+
+/* Links (Desktop) */
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links li a {
+  color: var(--nav-text);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* Effet Hover Desktop */
+.nav-links li a:hover {
+  background-color: var(--hover-bg);
+  color: #fff;
+}
+
+/* Lien Actif */
+.nav-links li a.active {
+  color: var(--primary-color);
+  background-color: rgba(99, 102, 241, 0.1);
+  font-weight: 600;
+}
+
+.nav-links li a.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  background-color: var(--primary-color);
+  border-radius: 2px;
+}
+
+/* Burger Menu (Mobile) */
+.burger {
+  display: none;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 5px;
+}
+
+/* Lignes du Burger */
+.burger span {
+  display: block;
+  width: 28px;
+  height: 3px;
+  background: #fff;
+  margin: 5px 0;
+  border-radius: 3px;
+  transition: all 0.3s ease-in-out;
+  transform-origin: 2px 50%;
+}
+
+/* --- Responsive (Mobile) --- */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 1.5rem;
+  }
+
+  .burger {
+    display: block;
+  }
+
+  /* Animation du Burger en Croix (X) */
+  .burger.open span:nth-child(1) {
+    transform: rotate(45deg) translate(2px, -1px);
+  }
+  .burger.open span:nth-child(2) {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  .burger.open span:nth-child(3) {
+    transform: rotate(-45deg) translate(2px, 1px);
+  }
+
+  /* Menu Mobile Déroulant */
+  .nav-links {
+    position: absolute;
+    top: 70px; /* Hauteur de la navbar */
+    left: 0;
+    width: 100%;
+    background: var(--nav-bg);
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    max-height: 0; /* Caché par défaut */
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+  }
+
+  /* Quand le menu est ouvert */
+  .nav-links.active {
+    max-height: 300px; /* Assez grand pour le contenu */
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .nav-links li {
+    width: 100%;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .nav-links li a {
+    display: block;
+    padding: 20px;
+    border-radius: 0;
+  }
+
+  .nav-links li a.active::after {
+    display: none; /* Pas de soulignement en mobile */
+  }
+}
+
+.burger {
+  width: 30px;
+  height: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+}
+.burger span {
+  display: block;
+  height: 3px;
+  width: 100%;
+  background-color: #4f46e5; /* Indigo-600 */
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+/* Animation croix */
+.burger.open span:nth-child(1) { transform: translateY(8.5px) rotate(45deg); }
+.burger.open span:nth-child(2) { opacity: 0; }
+.burger.open span:nth-child(3) { transform: translateY(-8.5px) rotate(-45deg); }
+
+
+/* Animation douce pour les menus déroulants */
+div[ngIf] {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

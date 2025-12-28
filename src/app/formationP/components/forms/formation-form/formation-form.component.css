@@ -1,0 +1,20 @@
+/* src/app/forms/formation-form/formation-form.component.css */
+
+/* Style pour le conteneur de prévisualisation de l'image */
+.image-preview-container {
+  text-align: center;
+  border: 1px dashed #ced4da; /* Bordure discrète */
+  padding: 10px;
+  border-radius: 6px;
+  background-color: #f8f9fa; /* bg-light */
+}
+
+/* Style pour l'image prévisualisée */
+.image-preview {
+  max-height: 100px;
+  max-width: 100%;
+  object-fit: contain; /* Assure que l'image est entièrement visible */
+  display: block; /* Évite les espaces sous l'image */
+  margin: 0 auto;
+  border-radius: 4px;
+}

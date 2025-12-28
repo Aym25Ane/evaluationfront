@@ -1,0 +1,46 @@
+/* src/app/formation-editor/formation-editor.component.css */
+
+/* Configuration de la vue divisée (Calcul de la hauteur) */
+.editor-main-container {
+  /* Assurez-vous que le header global a une hauteur de 58px. Ajustez si nécessaire. */
+  height: calc(100vh - 58px);
+}
+
+/* Panneau de structure (Gauche) */
+.structure-panel {
+  min-width: 300px;
+  max-width: 350px;
+  background-color: #f7f9fc; /* Gris très clair, style Notion/VS Code Explorer */
+}
+
+/* Panneau d'édition (Droite) */
+.editor-panel {
+  flex-grow: 1;
+  background-color: #ffffff;
+}
+
+/* Header (doit rester en haut) */
+.sticky-top {
+  z-index: 1050;
+}
+
+/* Style pour l'état "Aucun élément sélectionné" */
+.placeholder-editor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #adb5bd;
+  text-align: center;
+}
+
+.placeholder-editor i {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.placeholder-editor h4 {
+  font-weight: bold;
+  color: #343a40;
+}

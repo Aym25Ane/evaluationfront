@@ -1,0 +1,76 @@
+<<!-- src/app/forms/formation-form/formation-form.component.html -->
+
+<div class="card shadow-sm border-0">
+  <div class="card-body p-4">
+    <!-- Utilisation de la grille Bootstrap pour un layout propre -->
+    <div class="row g-4">
+
+      <!-- Champ : Titre de la formation -->
+      <div class="col-12">
+        <label for="formationTitre" class="form-label fw-bold">Titre de la formation :</label>
+        <input type="text" id="formationTitre" class="form-control form-control-lg"
+               [(ngModel)]="formation.titre"
+               (ngModelChange)="onModelChange()"
+               name="formationTitre"
+               placeholder="Ex: Maîtrise des Signaux Angular">
+      </div>
+
+      <!-- Champ : Description de la formation -->
+      <div class="col-12">
+        <label for="formationDescription" class="form-label fw-bold">Description :</label>
+        <textarea id="formationDescription" class="form-control" rows="4"
+                  [(ngModel)]="formation.description"
+                  (ngModelChange)="onModelChange()"
+                  name="formationDescription"
+                  placeholder="Décrivez le contenu et les objectifs de votre formation."></textarea>
+      </div>
+
+      <!-- Champ : Niveau de la formation -->
+      <div class="col-md-6">
+        <label for="formationNiveau" class="form-label fw-bold">Niveau :</label>
+        <input type="text" id="formationNiveau" class="form-control"
+               [(ngModel)]="formation.niveau"
+               (ngModelChange)="onModelChange()"
+               name="formationNiveau"
+               placeholder="Ex: Débutant, Intermédiaire, Expert">
+      </div>
+
+      <!-- Champ : Image Upload -->
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Image de couverture :</label>
+
+        <!-- Sélection du fichier -->
+        <input type="file"
+               class="form-control"
+               accept="image/*"
+               (change)="onImageSelected($event)"
+               [disabled]="isUploading()">
+
+        <!-- Indicateur de chargement -->
+        @if (isUploading()) {
+          <div class="d-flex align-items-center mt-2 text-primary">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            <strong>Upload en cours...</strong>
+          </div>
+        }
+
+        <!-- Aperçu de l'image uploadée -->
+        <div class="image-preview-container mt-3">
+          @if (imagePreview()) {
+            <img [src]="imagePreview()!"
+                 alt="Aperçu"
+                 class="img-fluid rounded border"
+                 style="max-height: 200px;">
+          } @else if (formation.image) {
+            <img [src]="formation.image"
+                 alt="Aperçu"
+                 class="img-fluid rounded border"
+                 style="max-height: 200px;">
+          }
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+</div>

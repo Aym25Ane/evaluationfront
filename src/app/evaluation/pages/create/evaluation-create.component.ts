@@ -31,6 +31,7 @@ import { Evaluation, QuestionType } from '../../models/evaluation.models';
     ReactiveFormsModule
   ],
   templateUrl: './evaluation-create.component.html',
+  standalone: true,
   styleUrl: './evaluation-create.component.scss'
 })
 export class EvaluationCreateComponent {
