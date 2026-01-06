@@ -11,10 +11,8 @@ import {Navbar} from './navbar/navbar';
     MatButtonModule,
     MatIconModule,
     MatToolbarModule,
-    RouterLink,
-    RouterLinkActive,
-    RouterOutlet,
-    Navbar
+    Navbar,
+    RouterOutlet
   ],
   templateUrl: './app.html',
   standalone: true,

@@ -23,7 +23,6 @@ export class FormationFormComponent {
   constructor(private formationService: FormationService) {}
 
   onModelChange(): void {
-    console.log("fortion change dans FormationFormComponent (TITRE) :", this.formation.titre)
     this.formationChange.emit(this.formation);
   }
 
