@@ -1,7 +1,10 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
+// src/app/forms/formation-form/formation-form.component.ts
+
+import { Component, Input, Output, EventEmitter, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Formation } from '../../../interfaces/formation';
+
+import { Formation, Categorie } from '../../../interfaces/formation';
 import { FormationService } from '../../../services/formation.service';
 
 @Component({
@@ -9,51 +12,83 @@ import { FormationService } from '../../../services/formation.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './formation-form.component.html',
-  styleUrl: './formation-form.component.css',
+  styleUrls: ['./formation-form.component.css'],
 })
-export class FormationFormComponent {
+export class FormationFormComponent implements OnInit {
 
   @Input({ required: true }) formation!: Formation;
   @Output() formationChange = new EventEmitter<Formation>();
 
-  // --- Signals pour l’upload ---
+  // Upload image
   isUploading = signal(false);
   imagePreview = signal<string | null>(null);
 
+  // Catégories
+  categories = signal<Categorie[]>([]);
+  isLoadingCategories = signal(false);
+
   constructor(private formationService: FormationService) {}
 
+  ngOnInit(): void {
+    this.loadCategories();
+  }
+
+  // =======================
+  // CATEGORIES (BACKEND)
+  // =======================
+  private loadCategories(): void {
+    this.isLoadingCategories.set(true);
+
+    this.formationService.getCategories().subscribe({
+      next: (cats) => {
+        this.categories.set(cats);
+        this.isLoadingCategories.set(false);
+      },
+      error: (err) => {
+        console.error('Erreur chargement catégories', err);
+        this.isLoadingCategories.set(false);
+      }
+    });
+  }
+
+  // =======================
+  // FORM CHANGE
+  // =======================
   onModelChange(): void {
     this.formationChange.emit(this.formation);
   }
 
+  onCategorieChange(categoryId: string): void {
+    const categorie = this.categories().find(c => c.id === Number(categoryId));
+    if (categorie) {
+      this.formation.categorie = categorie;
+      this.onModelChange();
+    }
+  }
+
+  // =======================
+  // IMAGE UPLOAD
+  // =======================
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
 
-    if (input.files && input?.files[0]) {
-      const file = input?.files[0];
+    const file = input.files[0];
+    this.isUploading.set(true);
+    this.imagePreview.set(null);
 
-      this.isUploading.set(true);
-      this.imagePreview.set(null);
-
-      this.formationService.uploadFile(file).subscribe({
-        next: (response) => {
-          // Le backend retourne : { fileUrl: "http://..." }
-          this.formation.image = response.fileUrl;
-
-          // Aperçu de l'image
-          this.imagePreview.set(response.fileUrl);
-
-          // Emettre au parent !
-          this.formationChange.emit(this.formation);
-
-          this.isUploading.set(false);
-        },
-        error: (err) => {
-          console.error("Erreur d'upload :", err);
-          alert(`Erreur lors de l'upload : ${err.error?.error || err.message}`);
-          this.isUploading.set(false);
-        }
-      });
-    }
+    this.formationService.uploadFile(file).subscribe({
+      next: (response) => {
+        this.formation.image = response.fileUrl;
+        this.imagePreview.set(response.fileUrl);
+        this.onModelChange();
+        this.isUploading.set(false);
+      },
+      error: (err) => {
+        console.error("Erreur d'upload :", err);
+        alert(`Erreur upload : ${err.error?.error || err.message}`);
+        this.isUploading.set(false);
+      }
+    });
   }
 }

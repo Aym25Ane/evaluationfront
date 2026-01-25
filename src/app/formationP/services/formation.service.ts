@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Formation } from '../interfaces/formation';
+import {Categorie, Formation} from '../interfaces/formation';
 import {environment} from '../../../environments/environment';
 
 @Injectable({
@@ -14,9 +14,6 @@ export class FormationService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Créer une nouvelle formation
-   */
   createFormation(formation: Formation): Observable<Formation> {
     return this.http.post<Formation>(`${this.apiUrl}/formations`, formation);
   }
@@ -64,4 +61,9 @@ export class FormationService {
   searchFormations(keyword: string): Observable<Formation[]> {
     return this.http.get<Formation[]>(`${this.apiUrl}/formations/search?keyword=${keyword}`);
   }
-}
+
+  getCategories(): Observable<Categorie[]> {
+    return this.http.get<Categorie[]>(`${this.apiUrl}/formations/categories`);
+  }
+
+  }

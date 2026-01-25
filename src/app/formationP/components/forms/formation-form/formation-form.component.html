@@ -1,75 +1,80 @@
-<<!-- src/app/forms/formation-form/formation-form.component.html -->
+<!-- src/app/forms/formation-form/formation-form.component.html -->
 
 <div class="card shadow-sm border-0">
   <div class="card-body p-4">
-    <!-- Utilisation de la grille Bootstrap pour un layout propre -->
     <div class="row g-4">
 
-      <!-- Champ : Titre de la formation -->
+      <!-- TITRE -->
       <div class="col-12">
-        <label for="formationTitre" class="form-label fw-bold">Titre de la formation :</label>
-        <input type="text" id="formationTitre" class="form-control form-control-lg"
+        <label class="form-label fw-bold">Titre de la formation</label>
+        <input type="text"
+               class="form-control form-control-lg"
                [(ngModel)]="formation.titre"
                (ngModelChange)="onModelChange()"
-               name="formationTitre"
-               placeholder="Ex: Maîtrise des Signaux Angular">
+               placeholder="Ex: Angular Avancé">
       </div>
 
-      <!-- Champ : Description de la formation -->
+      <!-- DESCRIPTION -->
       <div class="col-12">
-        <label for="formationDescription" class="form-label fw-bold">Description :</label>
-        <textarea id="formationDescription" class="form-control" rows="4"
+        <label class="form-label fw-bold">Description</label>
+        <textarea class="form-control"
+                  rows="4"
                   [(ngModel)]="formation.description"
-                  (ngModelChange)="onModelChange()"
-                  name="formationDescription"
-                  placeholder="Décrivez le contenu et les objectifs de votre formation."></textarea>
+                  (ngModelChange)="onModelChange()"></textarea>
       </div>
 
-      <!-- Champ : Niveau de la formation -->
+      <!-- NIVEAU -->
       <div class="col-md-6">
-        <label for="formationNiveau" class="form-label fw-bold">Niveau :</label>
-        <input type="text" id="formationNiveau" class="form-control"
+        <label class="form-label fw-bold">Niveau</label>
+        <input type="text"
+               class="form-control"
                [(ngModel)]="formation.niveau"
-               (ngModelChange)="onModelChange()"
-               name="formationNiveau"
-               placeholder="Ex: Débutant, Intermédiaire, Expert">
+               (ngModelChange)="onModelChange()">
       </div>
 
-      <!-- Champ : Image Upload -->
+      <!-- CATEGORIE -->
       <div class="col-md-6">
-        <label class="form-label fw-bold">Image de couverture :</label>
+        <label class="form-label fw-bold">Catégorie</label>
 
-        <!-- Sélection du fichier -->
+        @if (isLoadingCategories()) {
+          <div class="text-muted">Chargement des catégories...</div>
+        } @else {
+          <select class="form-select"
+                  [ngModel]="formation.categorie?.id"
+                  (ngModelChange)="onCategorieChange($event)">
+            <option value="" disabled selected>-- Sélectionner une catégorie --</option>
+            @for (cat of categories(); track cat.id) {
+              <option [value]="cat.id">{{ cat.name }}</option>
+            }
+          </select>
+        }
+      </div>
+
+      <!-- IMAGE -->
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Image de couverture</label>
+
         <input type="file"
                class="form-control"
                accept="image/*"
                (change)="onImageSelected($event)"
                [disabled]="isUploading()">
 
-        <!-- Indicateur de chargement -->
         @if (isUploading()) {
-          <div class="d-flex align-items-center mt-2 text-primary">
+          <div class="mt-2 text-primary d-flex align-items-center">
             <span class="spinner-border spinner-border-sm me-2"></span>
-            <strong>Upload en cours...</strong>
+            Upload en cours...
           </div>
         }
 
-        <!-- Aperçu de l'image uploadée -->
-        <div class="image-preview-container mt-3">
+        <div class="mt-3">
           @if (imagePreview()) {
-            <img [src]="imagePreview()!"
-                 alt="Aperçu"
-                 class="img-fluid rounded border"
-                 style="max-height: 200px;">
+            <img [src]="imagePreview()!" class="img-fluid rounded border" style="max-height:200px">
           } @else if (formation.image) {
-            <img [src]="formation.image"
-                 alt="Aperçu"
-                 class="img-fluid rounded border"
-                 style="max-height: 200px;">
+            <img [src]="formation.image" class="img-fluid rounded border" style="max-height:200px">
           }
         </div>
       </div>
-
 
     </div>
   </div>

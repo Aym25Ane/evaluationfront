@@ -1,17 +1,25 @@
 // src/app/components/formation-editor/formation-editor.component.ts
-import {Component, OnInit, signal, inject, Signal, WritableSignal, ChangeDetectorRef} from '@angular/core';
+
+import {
+  Component,
+  OnInit,
+  signal,
+  inject,
+  WritableSignal,
+  ChangeDetectorRef
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { StructureExplorerComponent } from '../structure-explorer/structure-explorer.component';
 import { FormationService } from '../../services/formation.service';
+
 import { CourseFormComponent } from '../forms/course-form/course-form.component';
 import { ChapitreFormComponent } from '../forms/chapitre-form/chapitre-form.component';
 import { SectionFormComponent } from '../forms/section-form/section-form.component';
 import { FormationFormComponent } from '../forms/formation-form/formation-form-component';
 
-
 import { FormationSelectionStateService } from '../../services/formation-selection-state-service';
-import {Chapitre, ContentItem, Cours, Formation, Section} from '../../interfaces/formation';
+import { Chapitre, ContentItem, Cours, Formation, Section } from '../../interfaces/formation';
 
 @Component({
   selector: 'app-formation-editor',
@@ -22,30 +30,33 @@ import {Chapitre, ContentItem, Cours, Formation, Section} from '../../interfaces
     FormationFormComponent,
     CourseFormComponent,
     ChapitreFormComponent,
-    SectionFormComponent,
+    SectionFormComponent
   ],
   templateUrl: './formation-editor.component.html',
   styleUrls: ['./formation-editor.component.css']
 })
 export class FormationEditorComponent implements OnInit {
 
-
   formation!: WritableSignal<Formation>;
+  selectedItem = signal<ContentItem | null>(null);
 
-  selectedItem: WritableSignal<ContentItem | null> = signal(null);
-  lastSaved: WritableSignal<Date | null> = signal(null);
-
-  isSaving: WritableSignal<boolean> = signal(false);
-  saveMessage: WritableSignal<string> = signal('');
+  lastSaved = signal<string | Date | null>(null);
+  isSaving = signal(false);
+  saveMessage = signal('');
 
   private formationService = inject(FormationService);
-  constructor(private formationSelectionStateService: FormationSelectionStateService,
-              private cdr :ChangeDetectorRef
-) {}
+
+  constructor(
+    private formationSelectionStateService: FormationSelectionStateService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-    const initialFormation = this.formationSelectionStateService.getCurrentFormation();
-    this.formation = signal<Formation>(initialFormation ?? this.getInitialData());
+    const initialFormation =
+      this.formationSelectionStateService.getCurrentFormation()
+      ?? this.getInitialData();
+
+    this.formation = signal(initialFormation);
     this.onSelectItem(this.formation());
   }
 
@@ -53,38 +64,63 @@ export class FormationEditorComponent implements OnInit {
     this.selectedItem.set(item);
   }
 
-  // MÉTHODE CLÉ : Met à jour l'élément sélectionné et force le rafraîchissement du signal formation.
   onUpdateSelectedItem(updatedItem: ContentItem): void {
-   if(this.isFormation(updatedItem)){
-     this.formation.set(updatedItem)
-   }
-    this.cdr.detectChanges();
+    if (this.isFormation(updatedItem)) {
+      this.formation.set(updatedItem);
+    }
     this.selectedItem.set(updatedItem);
     this.formation.update(f => ({ ...f }));
+    this.cdr.detectChanges();
   }
 
-  // --- LOGIQUE DE PERSISTANCE ---
+  // =======================
+  // PERSISTANCE
+  // =======================
   saveFormation(): void {
+    const f = this.formation(); // On récupère la valeur actuelle du signal
     this.isSaving.set(true);
-    this.formationService.createFormation(this.formation()).subscribe({
+    this.saveMessage.set('Sauvegarde en cours...');
+
+    // On détermine quelle méthode appeler selon la présence de l'ID
+    const request$ = f.id
+      ? this.formationService.updateFormation(f.id, f)  // Modification (PUT)
+      : this.formationService.createFormation(f);       // Création (POST)
+
+    request$.subscribe({
       next: (savedFormation) => {
+        // Mise à jour du signal avec la réponse (qui contient le nouvel ID si c'est une création)
         this.formation.set(savedFormation);
-        this.lastSaved.set(savedFormation.derniereMiseAJour);
+
+        // Si l'élément sélectionné était la formation elle-même, on met à jour la sélection
+        if (this.isFormation(this.selectedItem()!) && this.selectedItem() === f) {
+          this.selectedItem.set(savedFormation);
+        }
+
+        this.lastSaved.set(savedFormation.derniereMiseAJour || new Date());
         this.isSaving.set(false);
+        this.saveMessage.set(f.id ? 'Formation mise à jour avec succès !' : 'Formation créée avec succès !');
+
+        // Faire disparaitre le message après 3 secondes
+        setTimeout(() => this.saveMessage.set(''), 3000);
       },
       error: (err) => {
-        console.error('Erreur lors de la création:', err);
+        console.error('Erreur sauvegarde', err);
         this.isSaving.set(false);
+        this.saveMessage.set('Erreur lors de la sauvegarde.');
       }
     });
   }
 
-  // --- AJOUT ---
+  // =======================
+  // AJOUT
+  // =======================
   onAddCours(): void {
     this.formation.update(f => {
-      if (!f.cours) f.cours = [];
-      const newCours: Cours = { id: undefined, titre: `Nouveau Cours ${f.cours.length + 1}`, chapitres: [] };
-      f.cours.push(newCours);
+      const newCours: Cours = {
+        titre: `Nouveau Cours ${f.cours?.length + 1}`,
+        chapitres: []
+      };
+      f.cours?.push(newCours);
       this.onSelectItem(newCours);
       return { ...f };
     });
@@ -92,11 +128,13 @@ export class FormationEditorComponent implements OnInit {
 
   onAddChapitre(parentCours: Cours): void {
     this.formation.update(f => {
-      const coursToUpdate = f.cours!.find(c => c.id === parentCours.id);
-      if (coursToUpdate) {
-        if (!coursToUpdate.chapitres) coursToUpdate.chapitres = [];
-        const newChapitre: Chapitre = { id: undefined, titre: `Nouveau Chapitre ${coursToUpdate.chapitres.length + 1}`, sections: [] };
-        coursToUpdate.chapitres.push(newChapitre);
+      const cours = f.cours?.find(c => c === parentCours);
+      if (cours) {
+        const newChapitre: Chapitre = {
+          titre: `Nouveau Chapitre ${cours.chapitres.length + 1}`,
+          sections: []
+        };
+        cours.chapitres.push(newChapitre);
         this.onSelectItem(newChapitre);
       }
       return { ...f };
@@ -105,80 +143,95 @@ export class FormationEditorComponent implements OnInit {
 
   onAddSection(parentChapitre: Chapitre): void {
     this.formation.update(f => {
-      for (const cours of f.cours!) {
-        const chapitreToUpdate = cours.chapitres!.find(ch => ch.id === parentChapitre.id);
-        if (chapitreToUpdate) {
-          if (!chapitreToUpdate.sections) chapitreToUpdate.sections = [];
-          const newSection: Section = { id: undefined, titre: `Nouvelle Section ${chapitreToUpdate.sections.length + 1}`, typeContenu: 'TEXTE', contenu: '' };
-          chapitreToUpdate.sections.push(newSection);
+      for (const cours of f.cours) {
+        const chapitre = cours.chapitres.find(ch => ch === parentChapitre);
+        if (chapitre) {
+          const newSection: Section = {
+            titre: `Nouvelle Section ${chapitre.sections.length + 1}`,
+            typeContenu: 'TEXTE',
+            contenu: ''
+          };
+          chapitre.sections.push(newSection);
           this.onSelectItem(newSection);
-          return { ...f };
+          break;
         }
       }
-      return f;
+      return { ...f };
     });
   }
 
-  // --- SUPPRESSION ---
-  onRemoveCours(coursToRemove: Cours): void {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer le cours "${coursToRemove.titre}" ?`)) {
-      this.formation.update(f => {
-        f.cours = f.cours!.filter(c => c.id !== coursToRemove.id);
-        if (this.selectedItem() === coursToRemove) this.onSelectItem(f);
-        return { ...f };
-      });
-    }
+  // =======================
+  // SUPPRESSION
+  // =======================
+  onRemoveCours(cours: Cours): void {
+    if (!confirm(`Supprimer "${cours.titre}" ?`)) return;
+
+    this.formation.update(f => {
+      f.cours = f.cours.filter(c => c !== cours);
+      if (this.selectedItem() === cours) this.onSelectItem(f);
+      return { ...f };
+    });
   }
 
   onRemoveChapitre(event: { chapitre: Chapitre; parentCours: Cours }): void {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer le chapitre "${event.chapitre.titre}" ?`)) {
-      this.formation.update(f => {
-        const coursToUpdate = f.cours!.find(c => c.id === event.parentCours.id);
-        if (coursToUpdate) {
-          coursToUpdate.chapitres = coursToUpdate.chapitres!.filter(ch => ch.id !== event.chapitre.id);
-          if (this.selectedItem() === event.chapitre) this.onSelectItem(coursToUpdate);
-        }
-        return { ...f };
-      });
-    }
+    if (!confirm(`Supprimer "${event.chapitre.titre}" ?`)) return;
+
+    this.formation.update(f => {
+      event.parentCours.chapitres =
+        event.parentCours.chapitres.filter(ch => ch !== event.chapitre);
+
+      if (this.selectedItem() === event.chapitre) {
+        this.onSelectItem(event.parentCours);
+      }
+      return { ...f };
+    });
   }
 
   onRemoveSection(event: { section: Section; parentChapitre: Chapitre }): void {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer la section "${event.section.titre}" ?`)) {
-      this.formation.update(f => {
-        for (const cours of f.cours!) {
-          const chapitreToUpdate = cours.chapitres!.find(ch => ch.id === event.parentChapitre.id);
-          if (chapitreToUpdate) {
-            chapitreToUpdate.sections = chapitreToUpdate.sections!.filter(s => s.id !== event.section.id);
-            if (this.selectedItem() === event.section) this.onSelectItem(chapitreToUpdate);
-            return { ...f };
-          }
-        }
-        return f;
-      });
-    }
+    if (!confirm(`Supprimer "${event.section.titre}" ?`)) return;
+
+    this.formation.update(f => {
+      event.parentChapitre.sections =
+        event.parentChapitre.sections.filter(s => s !== event.section);
+
+      if (this.selectedItem() === event.section) {
+        this.onSelectItem(event.parentChapitre);
+      }
+      return { ...f };
+    });
   }
 
-  // --- TYPE GUARDS ---
+  // =======================
+  // TYPE GUARDS
+  // =======================
   isFormation(item: ContentItem): item is Formation {
-    return (item as Formation).cours !== undefined && (item as Cours).chapitres === undefined;
-  }
-  isCours(item: ContentItem): item is Cours {
-    return (item as Cours).chapitres !== undefined && (item as Chapitre).sections === undefined;
-  }
-  isChapitre(item: ContentItem): item is Chapitre {
-    return (item as Chapitre).sections !== undefined && (item as Section).typeContenu === undefined;
-  }
-  isSection(item: ContentItem): item is Section {
-    return (item as Section).typeContenu !== undefined;
+    return 'cours' in item;
   }
 
+  isCours(item: ContentItem): item is Cours {
+    return 'chapitres' in item && !('cours' in item);
+  }
+
+  isChapitre(item: ContentItem): item is Chapitre {
+    return 'sections' in item && !('chapitres' in item);
+  }
+
+  isSection(item: ContentItem): item is Section {
+    return 'typeContenu' in item;
+  }
+
+  // =======================
+  // INITIAL DATA
+  // =======================
   private getInitialData(): Formation {
     return {
-      titre: 'Nouveau Titre de Formation',
-      derniereMiseAJour: new Date(),
+      titre: 'Nouvelle Formation',
       description: '',
       niveau: 'Débutant',
+      image: '',
+      derniereMiseAJour: new Date(),
+      prix: 0,
+      publier: false,
       cours: []
     };
   }
