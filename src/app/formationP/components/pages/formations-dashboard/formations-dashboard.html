@@ -1,43 +1,98 @@
-<div class="container">
-  <div class="header-actions">
-    <h2>📚 Formations disponibles</h2>
-    <button class="create-btn" (click)="create()">+ Nouvelle Formation</button>
-  </div>
+<div class="dashboard-container">
 
+  <!-- Header Section -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1>Mes Formations</h1>
+      <p class="subtitle">Gérez, éditez et publiez votre contenu éducatif.</p>
+    </div>
+    <button class="btn-primary-add" (click)="create()">
+      <i class="bi bi-plus-lg"></i> Nouvelle Formation
+    </button>
+  </header>
+
+  <!-- Loading State -->
   @if(loading) {
-    <p style="text-align:center; color: #666;">Chargement des données...</p>
-  } @else {
-    <div class="cards">
-      @for(f of formations; track f.id!) {
-        <div class="card">
-          <!-- Si pas d'image, on peut mettre un placeholder coloré ou une image par défaut -->
-          <img class="banner" [src]="f.image || 'https://placehold.co/600x400/e0e0e0/333?text=Formation' " alt="Image formation"/>
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement de votre catalogue...</p>
+    </div>
+  }
+  @else {
 
-          <h3>{{ f.titre }}</h3>
-          <p class="desc">{{ f.description || 'Aucune description disponible pour le moment.' }}</p>
-          <p class="meta">🕒 Maj : {{ f.derniereMiseAJour | date:'dd/MM/yyyy' }}</p>
+    <!-- Content Grid -->
+    <div class="formations-grid">
+      @for(f of formations; track f.id) {
+        <article class="formation-card">
 
-          <div class="actions">
-            <button class="view-btn" (click)="viewFormation(f)">👁️ Voir</button>
-            <button class="edit-btn" (click)="edit(f.id!)">✏️ Éditer</button>
-            <button class="delete-btn" (click)="delete(f.id!)">🗑️</button>
+          <!-- Image Banner -->
+          <div class="card-image">
+            <img [src]="f.image || 'assets/placeholder-course.jpg'"
+                 [alt]="f.titre"
+                 onerror="this.src='https://placehold.co/600x400/f1f5f9/94a3b8?text=Formation'">
+
+            <!-- Status Badge -->
+            <span class="status-badge" [class.published]="f.publier">
+              {{ f.publier ? 'Publié' : 'Brouillon' }}
+            </span>
           </div>
-        </div>
+
+          <!-- Card Body -->
+          <div class="card-body">
+            <div class="meta-top">
+              <span class="category-tag">{{ f.niveau || 'Général' }}</span>
+              <span class="date-tag">{{ f.derniereMiseAJour | date:'dd MMM yyyy' }}</span>
+            </div>
+
+            <h3 class="card-title" title="{{ f.titre }}">{{ f.titre }}</h3>
+            <p class="card-desc">
+              {{ f.description || 'Ajoutez une description pour attirer vos étudiants...' }}
+            </p>
+
+            <!-- Card Footer / Actions -->
+            <div class="card-footer">
+              <button class="btn-action view" (click)="viewFormation(f)" title="Aperçu">
+                <i class="bi bi-eye"></i>
+              </button>
+
+              <div class="footer-group-right">
+                <button class="btn-action edit" (click)="edit(f.id!)" title="Modifier">
+                  <i class="bi bi-pencil"></i> Éditer
+                </button>
+                <button class="btn-action delete" (click)="delete(f.id!)" title="Supprimer">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
       } @empty {
-        <div style="grid-column: 1/-1; text-align: center; padding: 50px;">
-          <p>Aucune formation trouvée. Commencez par en créer une !</p>
+        <!-- Empty State -->
+        <div class="empty-state">
+          <div class="empty-icon-circle">
+            <i class="bi bi-journal-plus"></i>
+          </div>
+          <h3>Aucune formation pour le moment</h3>
+          <p>Commencez par créer votre première formation pour la partager avec vos étudiants.</p>
+          <button class="btn-primary-add mt-4" (click)="create()">
+            Créer ma première formation
+          </button>
         </div>
       }
     </div>
   }
 </div>
 
+<!-- Preview Modal -->
 @if(showFormationView) {
-  <div class="modal" (click)="showFormationView = false">
-    <div (click)="$event.stopPropagation()" style="display: contents;">
-      <app-formation-view [formation]="selectedFormation">
-      </app-formation-view>
-      <button class="close-btn" (click)="showFormationView = false">✖</button>
+  <div class="modal-backdrop fade-in" (click)="closeModal()">
+    <div class="modal-wrapper slide-up" (click)="$event.stopPropagation()">
+      <button class="modal-close-btn" (click)="closeModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+      <div class="modal-content custom-scrollbar">
+        <app-formation-view [formation]="selectedFormation"></app-formation-view>
+      </div>
     </div>
   </div>
 }

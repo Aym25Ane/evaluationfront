@@ -1,78 +1,110 @@
 @if(formationComputed(); as f) {
-  <div class="formation-container">
-    <!-- En-tête -->
-    @if(f.image) {
-      <img [src]="f.image" [alt]="f.titre" class="formation-image">
-    }
-    <h2>{{ f.titre }}</h2>
+  <div class="lms-container">
 
-    <div style="margin-bottom: 20px; color: #666; font-size: 0.9em;">
-      <span>📅 Mis à jour le : {{ formatDate(f.derniereMiseAJour) }}</span>
-      @if(f.niveau) {
-        <span style="margin-left: 15px;">📊 Niveau : <strong>{{ f.niveau }}</strong></span>
-      }
-    </div>
-
-    @if(f.description) {
-      <p style="font-size: 1.1em;">{{ f.description }}</p>
-    }
-
-    <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
-
-    <!-- Liste des Cours -->
-    @for(cours of f.cours ?? []; track cours.id) {
-      <div class="cours-container">
-        <h3>📚 {{ cours.titre }}</h3>
-
-        @if(cours.resume) {
-          <p style="font-style: italic; color: #777;">{{ cours.resume }}</p>
-        }
-
-        <!-- Liste des Chapitres -->
-        <div style="margin-top: 20px;">
-          @for(chapitre of cours.chapitres ?? []; track chapitre.id) {
-            <div class="chapitre-container">
-
-              <!-- Header Cliquable -->
-              <div class="chapitre-header" (click)="toggleChapter(chapitre)">
-                {{ chapitre.titre }}
-                <!-- Icône qui change selon l'état -->
-                <span>{{ isChapterOpen(chapitre) ? '−' : '+' }}</span>
-              </div>
-
-              <!-- Contenu déroulant -->
-              @if(isChapterOpen(chapitre)) {
-                <div class="chapitre-content">
-                  @for(section of chapitre.sections ?? []; track section.id) {
-                    <div class="section-item">
-                      <strong>{{ section.typeContenu }}</strong>
-
-                      @if(section.typeContenu === 'TEXTE') {
-                        <p>{{ section.contenu }}</p>
-                      }
-                      @if(section.typeContenu === 'VIDEO') {
-                        <video controls>
-                          <source [src]="section.contenu" type="video/mp4">
-                          Votre navigateur ne supporte pas la vidéo.
-                        </video>
-                      }
-                      @if(section.typeContenu === 'IMAGE') {
-                        <img [src]="'img.png'" alt="Image section" style="max-width: 100%; border-radius: 4px;">
-                      }
-                    </div>
-                  } @empty {
-                    <p>Aucun contenu dans ce chapitre.</p>
-                  }
-                </div>
-              }
-            </div>
-          } @empty {
-            <p>Aucun chapitre pour le moment.</p>
-          }
-        </div>
+    <!-- 1. HERO HEADER: L'accroche visuelle -->
+    <header class="course-hero">
+      <div class="hero-backdrop" [style.backgroundImage]="'url(' + (f.image || 'assets/placeholder-course.jpg') + ')'">
+        <div class="overlay"></div>
       </div>
-    } @empty {
-      <p>Aucun cours associé à cette formation.</p>
-    }
+
+      <div class="hero-content">
+        <div class="badge-row">
+          <span class="badge-level">{{ f.niveau || 'Tous niveaux' }}</span>
+          <span class="badge-update"><i class="bi bi-clock-history"></i> Mis à jour le {{ f.derniereMiseAJour | date:'mediumDate' }}</span>
+        </div>
+
+        <h1 class="course-title">{{ f.titre }}</h1>
+
+        @if(f.description) {
+          <p class="course-description">{{ f.description }}</p>
+        }
+      </div>
+    </header>
+
+    <!-- 2. MAIN CONTENT: Le contenu du cours -->
+    <main class="course-curriculum">
+
+      <!-- Liste des Modules (Cours) -->
+      @for(cours of f.cours ?? []; track cours.id) {
+        <section class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">
+              <span class="module-prefix">Module {{$index + 1}}</span>
+              {{ cours.titre }}
+            </h2>
+            @if(cours.resume) {
+              <p class="module-summary">{{ cours.resume }}</p>
+            }
+          </div>
+
+          <!-- Liste des Chapitres (Accordéon) -->
+          <div class="chapter-list">
+            @for(chapitre of cours.chapitres ?? []; track chapitre.id) {
+              <div class="chapter-item" [class.is-open]="isChapterOpen(chapitre)">
+
+                <!-- Header Cliquable -->
+                <button class="chapter-toggle" (click)="toggleChapter(chapitre)">
+                  <div class="toggle-info">
+                    <i class="bi" [class.bi-caret-right-fill]="!isChapterOpen(chapitre)" [class.bi-caret-down-fill]="isChapterOpen(chapitre)"></i>
+                    <span class="chapter-title">{{ chapitre.titre }}</span>
+                  </div>
+                  <span class="lesson-count">{{ chapitre.sections?.length || 0 }} leçon(s)</span>
+                </button>
+
+                <!-- Contenu Déroulant -->
+                @if(isChapterOpen(chapitre)) {
+                  <div class="chapter-body">
+                    @for(section of chapitre.sections ?? []; track section.id) {
+                      <div class="lesson-row">
+
+                        <!-- Icône selon le type -->
+                        <div class="lesson-icon">
+                          @if(section.typeContenu === 'VIDEO') { <i class="bi bi-play-circle-fill play-icon"></i> }
+                          @else if(section.typeContenu === 'TEXTE') { <i class="bi bi-file-text-fill text-icon"></i> }
+                          @else { <i class="bi bi-image-fill img-icon"></i> }
+                        </div>
+
+                        <div class="lesson-content">
+                          <h4 class="lesson-type-label">{{ section.typeContenu }}</h4>
+
+                          <!-- Affichage conditionnel -->
+                          @if(section.typeContenu === 'TEXTE') {
+                            <div class="lesson-text">{{ section.contenu }}</div>
+                          }
+
+                          @if(section.typeContenu === 'VIDEO') {
+                            <div class="video-wrapper">
+                              <video controls controlsList="nodownload">
+                                <source [src]="section.contenu" type="video/mp4">
+                                Votre navigateur ne supporte pas la lecture vidéo.
+                              </video>
+                            </div>
+                          }
+
+                          @if(section.typeContenu === 'IMAGE') {
+                            <div class="image-wrapper">
+                              <img [src]="'assets/placeholder.png'" alt="Contenu visuel">
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    } @empty {
+                      <div class="empty-chapter">Ce chapitre est vide pour le moment.</div>
+                    }
+                  </div>
+                }
+              </div>
+            } @empty {
+              <div class="empty-module">Aucun chapitre dans ce module.</div>
+            }
+          </div>
+        </section>
+      } @empty {
+        <div class="empty-course">
+          <i class="bi bi-inbox"></i>
+          <p>Le contenu de cette formation est en cours de création.</p>
+        </div>
+      }
+    </main>
   </div>
 }

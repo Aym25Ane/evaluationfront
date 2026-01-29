@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // 1. Import ChangeDetectorRef
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormationService } from '../../../services/formation.service';
@@ -20,64 +20,63 @@ export class FormationsDashboardComponent implements OnInit {
   selectedFormation: Formation | null = null;
   showFormationView = false;
 
-  constructor(
-    private fs: FormationService,
-    private router: Router,
-    private formationSelectionStateService: FormationSelectionStateService,
-    private cdr: ChangeDetectorRef // 2. Injection du service de détection
-  ) {}
+  private fs = inject(FormationService);
+  private router = inject(Router);
+  private formationSelectionStateService = inject(FormationSelectionStateService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
+    this.loadFormations();
+  }
+
+  loadFormations() {
+    this.loading = true;
     this.fs.getFormations().subscribe({
-      next: f => {
+      next: (f) => {
         this.formations = f;
         this.loading = false;
-        // 3. Forcer la mise à jour de la vue ici
         this.cdr.detectChanges();
       },
-      error: e => {
-        console.error("Erreur récupération formations", e);
+      error: (e) => {
+        console.error("Erreur API", e);
         this.loading = false;
-        this.cdr.detectChanges(); // Important en cas d'erreur aussi (pour arrêter le loading spinner)
+        this.cdr.detectChanges();
       }
     });
   }
 
-  edit(id: number) {
-    let selectedFromation = this.formations.find(f => f.id === id);
-
-    if (selectedFromation !== undefined)
-      this.formationSelectionStateService.setSelectedFormation(selectedFromation);
-    else
-      return;
-
+  create() {
+    this.formationSelectionStateService.setSelectedFormation(null); // Reset selection
     this.router.navigate(['/create_formation']);
   }
 
-  create() {
-    this.router.navigate(['/create_formation']);
+  edit(id: number) {
+    const selected = this.formations.find(f => f.id === id);
+    if (selected) {
+      this.formationSelectionStateService.setSelectedFormation(selected);
+      this.router.navigate(['/create_formation']);
+    }
   }
 
   delete(id: number) {
-    if (!confirm("Supprimer cette formation ?")) return;
+    if (!confirm("Voulez-vous vraiment supprimer cette formation ? Cette action est irréversible.")) return;
+
     this.fs.deleteFormation(id).subscribe({
       next: () => {
-        // On crée une nouvelle référence de tableau pour aider Angular à voir le changement
         this.formations = this.formations.filter(f => f.id !== id);
-
-        // 4. Forcer la mise à jour après suppression
         this.cdr.detectChanges();
       },
-      error: (e) => {
-        console.error("Erreur suppression formation", e);
-      }
+      error: (e) => console.error(e)
     });
   }
 
   viewFormation(f: Formation) {
-    console.log(f.titre);
     this.selectedFormation = f;
     this.showFormationView = true;
-    // Pas forcément besoin ici car le clic est un événement utilisateur qui déclenche déjà la détection
+  }
+
+  closeModal() {
+    this.showFormationView = false;
+    this.selectedFormation = null;
   }
 }

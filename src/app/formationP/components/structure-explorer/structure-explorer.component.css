@@ -1,44 +1,180 @@
-/* Afficher toujours les actions de manière plus visible */
-.item-actions {
-  display: none;
-  margin-left: auto;
-  gap: 6px;
-  flex-shrink: 0;
-}
+:host {
+  /* Palette cohérente */
+  --primary: #4f46e5;
+  --bg-selected: #e0e7ff; /* Indigo 100 */
+  --bg-hover: #f1f5f9;    /* Slate 100 */
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --line-color: #e2e8f0;  /* Couleur des lignes guides */
 
-/* Afficher les boutons au hover ou quand l’item est actif */
-.tree-item:hover .item-actions,
-.tree-item.active .item-actions {
+  /* Couleurs des icônes par niveau */
+  --icon-course: #6366f1;   /* Indigo */
+  --icon-chapter: #8b5cf6;  /* Violet */
+  --icon-section: #94a3b8;  /* Slate */
+
   display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background: #ffffff;
 }
 
-/* Style des boutons d'actions */
-.item-actions button {
+/* --- HEADER --- */
+.explorer-header {
+  padding: 0 16px 16px 0; /* Padding ajusté */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid transparent; /* Réservé */
+  margin-bottom: 8px;
+}
+
+.header-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.btn-icon-add {
+  background: transparent;
+  border: 1px solid var(--line-color);
+  color: var(--primary);
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 28px;
-  width: 28px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-icon-add:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* --- TREE STRUCTURE --- */
+.tree-container {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px; /* Pour la scrollbar */
+}
+
+/* Lignes guides (L'effet d'arbre) */
+.branch-guide {
+  padding-left: 20px; /* Décalage vers la droite */
+  border-left: 1px solid var(--line-color);
+  margin-left: 10px; /* Espace pour la ligne */
+}
+
+/* Supprimer la ligne pour le premier niveau si désiré */
+.root-branch {
+  margin-left: 10px;
+}
+
+/* --- NODE ITEM --- */
+.tree-node {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  margin-bottom: 2px;
   border-radius: 6px;
-  border: 1px solid #d6d6d6;
-  background-color: #ffffff;
-  transition: background-color 0.15s, transform 0.1s;
-  padding: 0;
+  cursor: pointer;
+  color: var(--text-main);
+  transition: background 0.15s;
+  position: relative;
+  font-size: 0.9rem;
 }
 
-/* Icônes plus visibles */
-.item-actions button i {
-  font-size: 16px;
-  color: #495057;
+.tree-node:hover {
+  background-color: var(--bg-hover);
 }
 
-/* Effet hover pour bien attirer l'œil */
-.item-actions button:hover {
-  background-color: #e8f0ff;
-  border-color: #0d6efd;
-  transform: scale(1.08);
+.tree-node.active {
+  background-color: var(--bg-selected);
+  color: var(--primary);
+  font-weight: 500;
 }
 
-.item-actions button.text-danger i {
-  color: #dc3545 !important;
+/* Contenu (Icone + Texte) */
+.node-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden; /* Pour le text-truncate */
+  flex: 1;
 }
+
+.node-icon {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+.tree-node.active .node-icon { opacity: 1; }
+
+.text-course { color: var(--icon-course); }
+.text-chapter { color: var(--icon-chapter); }
+.text-section { color: var(--icon-section); }
+
+.node-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- ACTIONS (Hover) --- */
+.node-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0; /* Caché par défaut */
+  transition: opacity 0.2s;
+}
+
+.tree-node:hover .node-actions,
+.tree-node.active .node-actions {
+  opacity: 1; /* Visible au hover ou si actif */
+}
+
+.action-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.action-btn:hover {
+  background-color: rgba(0,0,0,0.05);
+  color: var(--text-main);
+}
+
+.action-btn.add:hover { color: var(--primary); }
+.action-btn.delete:hover { color: #ef4444; }
+
+/* Styles spécifiques par niveau */
+.root-node {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.section-node {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.section-node.active { color: var(--primary); }
+
+/* Custom Scrollbar (fine) */
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }

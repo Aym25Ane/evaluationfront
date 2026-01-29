@@ -1,119 +1,112 @@
 @if (formation) {
-  <div class="explorer-header mb-3 d-flex justify-content-between align-items-center">
-    <h5 class="mb-0 text-muted">
-      <i class="bi bi-diagram-3-fill me-2">
-
-      </i>Structure</h5>
-
-    <!-- Ajouter un cours à la formation -->
-    <button class="btn btn-sm btn-outline-primary" (click)="addCours.emit()" title="Ajouter un Cours">
+  <!-- Header Fixe -->
+  <div class="explorer-header">
+    <span class="header-title">PLAN DU COURS</span>
+    <button class="btn-icon-add" (click)="addCours.emit()" title="Ajouter un module">
       <i class="bi bi-plus-lg"></i>
     </button>
   </div>
 
-  <div class="tree-view list-group">
+  <div class="tree-container custom-scrollbar">
 
-    <!-- Formation (modifiable, non supprimable) -->
-    <div class="list-group-item list-group-item-action tree-item formation-item d-flex justify-content-between align-items-center"
-         [class.active]="isSelected(formation)" (click)="selectItem($event, formation)">
-      <div>
-        <i class="bi bi-mortarboard-fill icon"></i>
-        <span>{{ formation.titre || 'Nouvelle Formation' }}</span>
+    <!-- 1. FORMATION (Racine) -->
+    <div class="tree-node root-node"
+         [class.active]="isSelected(formation)"
+         (click)="selectItem($event, formation)">
+
+      <div class="node-content">
+        <i class="bi bi-mortarboard-fill node-icon text-primary"></i>
+        <span class="node-label">{{ formation.titre || 'Nouvelle Formation' }}</span>
       </div>
 
-      <!-- ✅ Bouton Modifier -->
-      <div class="item-actions">
-        <button class="btn btn-sm btn-light border-0"
-                (click)="selectItem($event, formation); $event.stopPropagation()" title="Modifier la Formation">
-          <i class="bi bi-pencil-square"></i>
-        </button>
-      </div>
+      <!-- Pas d'actions pour la racine (ou ajouter selon besoin) -->
     </div>
 
-    @for (cours of formation.cours; track cours.id) {
-      <div class="list-group-item list-group-item-action tree-item course-item d-flex justify-content-between align-items-center"
-           [class.active]="isSelected(cours)" (click)="selectItem($event, cours)">
+    <!-- 2. COURS (Modules) -->
+    <div class="branch-guide root-branch">
+      @for (cours of formation.cours; track cours.id) {
+        <div class="tree-group">
 
-        <div class="text-truncate">
-          <i class="bi bi-journal-bookmark-fill icon"></i>
-          <span>{{ cours.titre || 'Nouveau Cours' }}</span>
-        </div>
+          <div class="tree-node course-node"
+               [class.active]="isSelected(cours)"
+               (click)="selectItem($event, cours)">
 
-        <div class="item-actions">
-          <!-- Ajouter chapitre -->
-          <button class="btn btn-sm btn-light border-0"
-                  (click)="addChapitre.emit(cours); $event.stopPropagation()" title="Ajouter un Chapitre">
-            <i class="bi bi-plus-circle"></i>
-          </button>
-
-          <!-- ✅ Modifier -->
-          <button class="btn btn-sm btn-light border-0"
-                  (click)="selectItem($event, cours); $event.stopPropagation()" title="Modifier le Cours">
-            <i class="bi bi-pencil-square"></i>
-          </button>
-
-          <!-- Supprimer -->
-          <button class="btn btn-sm btn-light border-0 text-danger"
-                  (click)="removeCours.emit(cours); $event.stopPropagation()" title="Supprimer le Cours">
-            <i class="bi bi-trash"></i>
-          </button>
-        </div>
-      </div>
-
-      @for (chapitre of cours.chapitres; track chapitre.id) {
-        <div class="list-group-item list-group-item-action tree-item chapter-item d-flex justify-content-between align-items-center"
-             [class.active]="isSelected(chapitre)" (click)="selectItem($event, chapitre)">
-
-          <div class="text-truncate">
-            <i class="bi bi-collection-fill icon"></i>
-            <span>{{ chapitre.titre || 'Nouveau Chapitre' }}</span>
-          </div>
-
-          <div class="item-actions">
-            <!-- Ajouter une section -->
-            <button class="btn btn-sm btn-light border-0"
-                    (click)="addSection.emit(chapitre); $event.stopPropagation()" title="Ajouter une Section">
-              <i class="bi bi-plus-circle-dotted"></i>
-            </button>
-
-            <!-- ✅ Modifier -->
-            <button class="btn btn-sm btn-light border-0"
-                    (click)="selectItem($event, chapitre); $event.stopPropagation()" title="Modifier Chapitre">
-              <i class="bi bi-pencil-square"></i>
-            </button>
-
-            <!-- Supprimer -->
-            <button class="btn btn-sm btn-light border-0 text-danger"
-                    (click)="removeChapitre.emit({chapitre: chapitre, parentCours: cours}); $event.stopPropagation()" title="Supprimer Chapitre">
-              <i class="bi bi-trash"></i>
-            </button>
-          </div>
-        </div>
-
-        @for (section of chapitre.sections; track section.id) {
-          <div class="list-group-item list-group-item-action tree-item section-item d-flex justify-content-between align-items-center"
-               [class.active]="isSelected(section)" (click)="selectItem($event, section)">
-            <div class="text-truncate">
-              <i class="bi bi-file-earmark-text icon"></i>
-              <span>{{ section.titre || 'Nouvelle Section' }}</span>
+            <div class="node-content">
+              <i class="bi bi-folder-fill node-icon text-course"></i>
+              <span class="node-label">{{ cours.titre || 'Nouveau Module' }}</span>
             </div>
 
-            <div class="item-actions">
-
-              <button class="btn btn-sm btn-light border-0"
-                      (click)="selectItem($event, section); $event.stopPropagation()" title="Modifier Section">
-                <i class="bi bi-pencil-square"></i>
+            <div class="node-actions">
+              <button class="action-btn add" (click)="addChapitre.emit(cours); $event.stopPropagation()" title="Ajouter un chapitre">
+                <i class="bi bi-plus"></i>
               </button>
-
-              <!-- Supprimer -->
-              <button class="btn btn-sm btn-light border-0 text-danger"
-                      (click)="removeSection.emit({section: section, parentChapitre: chapitre}); $event.stopPropagation()" title="Supprimer Section">
-                <i class="bi bi-trash"></i>
+              <button class="action-btn delete" (click)="removeCours.emit(cours); $event.stopPropagation()" title="Supprimer">
+                <i class="bi bi-trash3"></i>
               </button>
             </div>
           </div>
-        }
+
+          <!-- 3. CHAPITRES -->
+          <div class="branch-guide">
+            @for (chapitre of cours.chapitres; track chapitre.id) {
+              <div class="tree-group">
+
+                <div class="tree-node chapter-node"
+                     [class.active]="isSelected(chapitre)"
+                     (click)="selectItem($event, chapitre)">
+
+                  <div class="node-content">
+                    <i class="bi bi-journal-text node-icon text-chapter"></i>
+                    <span class="node-label">{{ chapitre.titre || 'Nouveau Chapitre' }}</span>
+                  </div>
+
+                  <div class="node-actions">
+                    <button class="action-btn add" (click)="addSection.emit(chapitre); $event.stopPropagation()" title="Ajouter du contenu">
+                      <i class="bi bi-plus"></i>
+                    </button>
+                    <button class="action-btn delete" (click)="removeChapitre.emit({chapitre: chapitre, parentCours: cours}); $event.stopPropagation()" title="Supprimer">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 4. SECTIONS (Leçons) -->
+                <div class="branch-guide">
+                  @for (section of chapitre.sections; track section.id) {
+                    <div class="tree-node section-node"
+                         [class.active]="isSelected(section)"
+                         (click)="selectItem($event, section)">
+
+                      <div class="node-content">
+                        <!-- Icône dynamique selon le type (VIDEO, IMAGE, TEXTE) -->
+                        @if(section.typeContenu === 'VIDEO') {
+                          <i class="bi bi-play-circle node-icon text-section" title="Vidéo"></i>
+                        }
+                        @else if(section.typeContenu === 'IMAGE') {
+                          <i class="bi bi-image node-icon text-section" title="Image"></i>
+                        }
+                        @else {
+                          <!-- Par défaut : TEXTE -->
+                          <i class="bi bi-file-text node-icon text-section" title="Texte"></i>
+                        }
+
+                        <span class="node-label">{{ section.titre || 'Nouvelle Leçon' }}</span>
+                      </div>
+                      <div class="node-actions">
+                        <button class="action-btn delete" (click)="removeSection.emit({section: section, parentChapitre: chapitre}); $event.stopPropagation()" title="Supprimer">
+                          <i class="bi bi-trash3"></i>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+              </div>
+            }
+          </div>
+
+        </div>
       }
-    }
+    </div>
   </div>
 }

@@ -1,85 +1,214 @@
-/* Container interne */
-.formation-container {
-  padding: 30px;
-  color: #333;
+/* =========================================
+   VARIABLES & THEME
+   ========================================= */
+:host {
+  --primary: #4f46e5;       /* Indigo 600 */
+  --primary-light: #e0e7ff; /* Indigo 100 */
+  --text-main: #1e293b;     /* Slate 800 */
+  --text-muted: #64748b;    /* Slate 500 */
+  --bg-page: #f8fafc;       /* Slate 50 */
+  --bg-card: #ffffff;
+  --border: #e2e8f0;        /* Slate 200 */
+  --radius: 12px;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+  display: block;
+  background-color: var(--bg-page);
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--text-main);
 }
 
-/* En-tête de la vue détail */
-.formation-container h2 {
-  font-size: 2rem;
-  color: #2c3e50;
-  margin-bottom: 10px;
-  border-bottom: 2px solid #3f51b5;
-  padding-bottom: 15px;
-  display: inline-block;
+.lms-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding-bottom: 80px;
 }
 
-.formation-image {
-  width: 100%;
-  max-height: 300px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin: 20px 0;
+/* =========================================
+   1. HERO HEADER
+   ========================================= */
+.course-hero {
+  position: relative;
+  background: var(--bg-card);
+  border-radius: 0 0 var(--radius) var(--radius);
+  overflow: hidden;
+  margin-bottom: 40px;
+  box-shadow: var(--shadow-md);
 }
 
-/* Informations générales */
-p {
+/* Image de fond avec effet de flou/sombre */
+.hero-backdrop {
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+}
+
+.hero-content {
+  padding: 30px 40px;
+  margin-top: -60px; /* Chevauchement sur l'image */
+  position: relative;
+  z-index: 2;
+}
+
+.badge-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.badge-level {
+  background-color: var(--primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-update {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: var(--text-main);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.course-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0 0 16px 0;
+  line-height: 1.1;
+  color: var(--text-main);
+  /* Si le titre est sur l'image blanche, texte noir, sinon adapter */
+  text-shadow: 2px 2px 0px #fff;
+}
+
+.course-description {
+  font-size: 1.1rem;
   line-height: 1.6;
-  color: #555;
+  color: var(--text-muted);
+  max-width: 800px;
 }
 
-/* COURS */
-.cours-container {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 20px;
-  margin-top: 30px;
-  border: 1px solid #e9ecef;
+/* =========================================
+   2. CURRICULUM (MODULES)
+   ========================================= */
+.course-curriculum {
+  padding: 0 20px;
 }
 
-.cours-container h3 {
-  color: #3f51b5;
-  margin-top: 0;
-}
-
-/* CHAPITRES (Accordéon) */
-.chapitre-container {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  margin-bottom: 10px;
+.module-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 30px;
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 
-/* Le titre du chapitre (la barre cliquable) */
-.chapitre-header {
-  padding: 15px 20px;
+.module-header {
+  padding: 24px 30px;
+  border-bottom: 1px solid var(--border);
+  background: #fdfdfd;
+}
+
+.module-title {
+  font-size: 1.25rem;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.module-prefix {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--primary);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.module-summary {
   margin: 0;
-  background-color: #fff;
-  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+/* =========================================
+   3. CHAPITRES (ACCORDEON)
+   ========================================= */
+.chapter-item {
+  border-bottom: 1px solid var(--border);
+}
+.chapter-item:last-child {
+  border-bottom: none;
+}
+
+.chapter-toggle {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: 600;
+  padding: 18px 30px;
+  background: none;
+  border: none;
+  cursor: pointer;
   transition: background 0.2s;
+  text-align: left;
 }
 
-.chapitre-header:hover {
-  background-color: #f0f4ff;
+.chapter-toggle:hover {
+  background-color: #f1f5f9;
 }
 
-.chapitre-header span {
-  font-size: 1.2rem;
-  color: #3f51b5;
-  font-weight: bold;
+.toggle-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-/* Contenu du chapitre (ouvert) */
-.chapitre-content {
-  padding: 20px;
-  background-color: #fafafa;
-  border-top: 1px solid #eee;
-  animation: slideDown 0.2s ease-out;
+.toggle-info i {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+
+.chapter-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.lesson-count {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Animation d'ouverture */
+.chapter-body {
+  background-color: #f8fafc;
+  padding: 0;
+  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes slideDown {
@@ -87,25 +216,116 @@ p {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* SECTION */
-.section-item {
-  margin-bottom: 15px;
-  padding-left: 15px;
-  border-left: 3px solid #3f51b5;
+/* =========================================
+   4. LEÇONS (SECTIONS)
+   ========================================= */
+.lesson-row {
+  display: flex;
+  gap: 20px;
+  padding: 24px 30px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.lesson-row:last-child {
+  border-bottom: none;
 }
 
-.section-item strong {
-  display: block;
-  font-size: 0.8rem;
+/* Icônes de type de contenu */
+.lesson-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.play-icon { color: #ef4444; } /* Rouge pour vidéo */
+.text-icon { color: #3b82f6; } /* Bleu pour texte */
+.img-icon  { color: #10b981; } /* Vert pour image */
+
+.lesson-content {
+  flex: 1;
+}
+
+.lesson-type-label {
+  font-size: 0.7rem;
   text-transform: uppercase;
-  color: #999;
-  margin-bottom: 5px;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.05em;
 }
 
-/* Vidéo responsive */
+.lesson-text {
+  line-height: 1.7;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+/* Video Player Container */
+.video-wrapper {
+  margin-top: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  background: black;
+}
+
 video {
   width: 100%;
-  max-width: 600px;
+  display: block;
+  aspect-ratio: 16 / 9;
+}
+
+/* Image Container */
+.image-wrapper {
+  margin-top: 10px;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.image-wrapper img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Etats vides */
+.empty-chapter, .empty-course, .empty-module {
+  padding: 30px;
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.empty-course i {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 10px;
+  opacity: 0.3;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .course-hero {
+    border-radius: 0;
+  }
+  .hero-content {
+    padding: 20px;
+  }
+  .course-title {
+    font-size: 1.75rem;
+  }
+  .lesson-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .lesson-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
 }

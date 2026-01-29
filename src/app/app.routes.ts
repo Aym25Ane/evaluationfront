@@ -3,6 +3,7 @@ import { evaluationRoutes } from './evaluation/routing/evaluation.routes';
 import {FormationsDashboardComponent} from './formationP/components/pages/formations-dashboard/formations-dashboard';
 import {FormationEditorComponent} from './formationP/components/formation-editor-component/formation-editor.component';
 import {AuthGuard} from './auth/auth.guard';
+import {AdminDashboardComponent} from './admin/dashboard/admin-dashboard.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'evaluation/dashboard' },
@@ -20,5 +21,9 @@ export const routes: Routes = [
     ,component:FormationsDashboardComponent
   },{
     path: "",redirectTo:'formation-dashboard',pathMatch:'full'
+  },
+  {
+    path: "admin",
+    component: AdminDashboardComponent
   }
 ];

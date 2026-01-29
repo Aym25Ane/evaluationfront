@@ -1,98 +1,195 @@
-<!-- Fichier: src/app/formation-editor/formation-editor.component.html -->
-
-<header class="sticky-top p-3 bg-white border-bottom shadow-sm d-flex justify-content-between align-items-center">
-  <h5 class="text-secondary fw-light mb-0">
-    <i class="bi bi-mortarboard-fill me-2 text-primary"></i>
-    Édition : <span class="fw-bold text-dark">{{ formation().titre }}</span>
-  </h5>
-
-  <div class="d-flex align-items-center gap-3">
-    @if (lastSaved()) {
-      <small class="text-muted">
-        <i class="bi bi-check-circle-fill text-success me-1"></i>
-        Sauvegardé à {{ lastSaved() | date:'shortTime' }}
-      </small>
-    }
-    <button class="btn btn-outline-secondary" disabled>
-      <i class="bi bi-eye-fill me-2"></i> Prévisualiser
-    </button>
-    <button class="btn btn-primary fw-bold" (click)="saveFormation()" [disabled]="isSaving()">
-      @if (isSaving()) {
-        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-        Sauvegarde en cours...
-      } @else {
-        <i class="bi bi-cloud-arrow-up-fill me-2"></i> Enregistrer
-      }
-    </button>
-  </div>
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0 text-dark">Plan de la Formation</h4>
-    <!-- RETIREZ 'disabled' pour activer le bouton d'ajout de cours principal -->
-    <button class="btn btn-sm btn-outline-primary" (click)="onAddCours()" title="Ajouter un nouveau cours">
-      <i class="bi bi-journal-plus"></i>
-    </button>
-  </div>
-</header>
-
-<!-- 2. CONTENEUR PRINCIPAL (SPLIT VIEW) -->
-<div class="d-flex editor-main-container">
-
-  <!-- B. PANNEAU DE STRUCTURE (L'EXPLORER) - Colonne Gauche -->
-  <div class="structure-panel p-4 border-end overflow-y-auto">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h4 class="fw-bold mb-0 text-dark">Plan de la Formation</h4>
-      <!-- CORRECTION : Activation du bouton d'ajout de cours principal -->
-      <button class="btn btn-sm btn-outline-primary" (click)="onAddCours()" title="Ajouter un nouveau cours">
-        <i class="bi bi-journal-plus"></i>
-      </button>
+<div class="app-layout">
+  <!-- ========================================== -->
+  <!-- 1. HEADER (Sticky & Premium) -->
+  <!-- ========================================== -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo-box">
+        <i class="bi bi-mortarboard-fill"></i>
+      </div>
+      <div class="header-titles">
+        <span class="app-name">Éditeur de Formation</span>
+        <!-- Titre dynamique venant du Signal -->
+        <h1 class="formation-title">{{ formation().titre || 'Sans titre' }}</h1>
+      </div>
     </div>
 
-    <!-- Le composant d'exploration de l'arbre avec tous les événements liés -->
-    <app-structure-explorer
-      [formation]="formation()"
-
-      [currentSelectedItem]="selectedItem()"
-      (itemSelected)="onSelectItem($event)"
-
-      (addCours)="onAddCours()"
-      (addChapitre)="onAddChapitre($event)"
-      (addSection)="onAddSection($event)"
-
-      (removeCours)="onRemoveCours($event)"
-      (removeChapitre)="onRemoveChapitre($event)"
-      (removeSection)="onRemoveSection($event)">
-    </app-structure-explorer>
-  </div>
-
-  <!-- C. PANNEAU D'ÉDITION DYNAMIQUE - Colonne Droite (Inchangé) -->
-  <!-- ... -->
-  <div class="editor-panel flex-grow-1 p-5 overflow-y-auto bg-white">
-
-    @if (selectedItem(); as item) {
-      <div class="card shadow-lg border-0 rounded-4">
-
-        <div class="card-body p-4 p-md-5">
-
-          <!-- CORRECTION ICI : Ajout de (formationChange) sur app-formation-form -->
-          @if (isFormation(item)) {
-            <app-formation-form [formation]="item" (formationChange)="onUpdateSelectedItem($event)"></app-formation-form>
-
-          } @else if (isCours(item)) {
-            <app-course-form [cours]="item" (coursChange)="onUpdateSelectedItem($event)"></app-course-form>
-          } @else if (isChapitre(item)) {
-            <app-chapitre-form [chapitre]="item" (chapitreChange)="onUpdateSelectedItem($event)"></app-chapitre-form>
-          } @else if (isSection(item)) {
-            <app-section-form [section]="item" (sectionChange)="onUpdateSelectedItem($event)"></app-section-form>
-          }
-
+    <div class="header-actions">
+      <!-- État de sauvegarde -->
+      @if (lastSaved()) {
+        <div class="save-indicator fade-in">
+          <i class="bi bi-check2-circle"></i>
+          <span>Sauvegardé à {{ lastSaved() | date:'HH:mm' }}</span>
         </div>
+      }
+
+      <!-- Groupe de boutons -->
+      <div class="action-buttons">
+        <button class="btn-secondary" disabled title="Prévisualisation (Bientôt)">
+          <i class="bi bi-eye"></i>
+        </button>
+
+        <button class="btn-primary" (click)="saveFormation()" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <span class="spinner"></span>
+            <span>Enregistrement...</span>
+          } @else {
+            <i class="bi bi-cloud-arrow-up-fill"></i>
+            <span>Publier / Sauvegarder</span>
+          }
+        </button>
       </div>
-    } @else {
-      <div class="placeholder-editor">
-        <i class="bi bi-cursor-fill"></i>
-        <h4 class="mt-3 text-dark fw-bold">Aucun élément sélectionné</h4>
-        <p class="text-muted">Cliquez sur un élément dans la structure à gauche pour l'éditer.</p>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- 2. MAIN CONTAINER (Split View) -->
+  <!-- ========================================== -->
+  <main class="workspace">
+
+    <!-- A. SIDEBAR (Structure Explorer) -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <h3>Plan du cours</h3>
+        <button class="btn-icon-add" (click)="onAddCours()" title="Ajouter un Module">
+          <i class="bi bi-plus-lg"></i>
+        </button>
       </div>
-    }
-  </div>
+
+      <div class="sidebar-scrollable custom-scrollbar">
+        <!-- Composant Explorer existant -->
+        <app-structure-explorer
+          [formation]="formation()"
+          [currentSelectedItem]="selectedItem()"
+          (itemSelected)="onSelectItem($event)"
+          (addCours)="onAddCours()"
+          (addChapitre)="onAddChapitre($event)"
+          (addSection)="onAddSection($event)"
+          (removeCours)="onRemoveCours($event)"
+          (removeChapitre)="onRemoveChapitre($event)"
+          (removeSection)="onRemoveSection($event)">
+        </app-structure-explorer>
+      </div>
+    </aside>
+
+    <!-- B. EDITOR CANVAS (Zone d'édition centrale) -->
+    <section class="editor-canvas custom-scrollbar">
+      <div class="canvas-content">
+
+        <!-- Zone Formulaire -->
+        @if (selectedItem(); as item) {
+          <div class="editor-card slide-up">
+            <!-- Fil d'Ariane Visuel -->
+            <div class="card-header-breadcrumb">
+              <span class="badge-pill">
+                @if(isFormation(item)) { <i class="bi bi-gear-fill"></i> CONFIGURATION }
+                @else if(isCours(item)) { <i class="bi bi-folder-fill"></i> MODULE }
+                @else if(isChapitre(item)) { <i class="bi bi-bookmark-fill"></i> CHAPITRE }
+                @else if(isSection(item)) { <i class="bi bi-file-earmark-text-fill"></i> CONTENU }
+              </span>
+            </div>
+
+            <div class="card-body">
+              <!-- Injection dynamique des formulaires selon le Type Guard -->
+              @if (isFormation(item)) {
+                <app-formation-form [formation]="item" (formationChange)="onUpdateSelectedItem($event)"></app-formation-form>
+              }
+              @else if (isCours(item)) {
+                <app-course-form [cours]="item" (coursChange)="onUpdateSelectedItem($event)"></app-course-form>
+              }
+              @else if (isChapitre(item)) {
+                <app-chapitre-form [chapitre]="item" (chapitreChange)="onUpdateSelectedItem($event)"></app-chapitre-form>
+              }
+              @else if (isSection(item)) {
+                <app-section-form [section]="item" (sectionChange)="onUpdateSelectedItem($event)"></app-section-form>
+              }
+            </div>
+          </div>
+        } @else {
+          <!-- Empty State (Rien de sélectionné) -->
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="bi bi-layers-half"></i>
+            </div>
+            <h3>Sélectionnez un élément</h3>
+            <p>Cliquez sur le plan à gauche pour éditer le contenu de votre formation.</p>
+          </div>
+        }
+
+        <!-- ========================================== -->
+        <!-- 3. LIVE PREVIEW (Integrée en bas) -->
+        <!-- ========================================== -->
+        @if(formation(); as f) {
+          <div class="preview-separator">
+            <span>Aperçu Étudiant</span>
+          </div>
+
+          <div class="preview-container">
+            <!-- Hero Banner -->
+            <div class="preview-hero" [style.backgroundImage]="'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(' + (f.image || 'assets/placeholder.jpg') + ')'">
+              <div class="hero-content">
+                <span class="level-badge">{{ f.niveau }}</span>
+                <h2>{{ f.titre }}</h2>
+                <div class="meta-info">
+                  <span><i class="bi bi-calendar3"></i> Mis à jour le {{ f.derniereMiseAJour | date:'mediumDate' }}</span>
+                  @if(f.prix) { <span><i class="bi bi-tag-fill"></i> {{ f.prix }} €</span> }
+                </div>
+              </div>
+            </div>
+
+            <div class="preview-body">
+              <p class="description-text">{{ f.description || 'Aucune description pour le moment.' }}</p>
+
+              <!-- Liste des cours (Accordion) -->
+              <div class="curriculum-list">
+                @for(cours of f.cours; track cours) {
+                  <div class="module-block">
+                    <h4 class="module-title">{{ cours.titre }}</h4>
+
+                    <div class="chapters-stack">
+                      @for(chapitre of cours.chapitres; track chapitre) {
+                        <!-- Utilisation de <details> HTML5 pour l'accordéon sans TS supplémentaire -->
+                        <details class="chapter-details">
+                          <summary class="chapter-summary">
+                            <div class="summary-content">
+                              <span class="chapter-name">{{ chapitre.titre }}</span>
+                              <small>{{ chapitre.sections.length }} leçons</small>
+                            </div>
+                            <i class="bi bi-chevron-down arrow-icon"></i>
+                          </summary>
+
+                          <div class="chapter-content">
+                            @for(section of chapitre.sections; track section) {
+                              <div class="lesson-row">
+                                <div class="lesson-icon">
+                                  @if(section.typeContenu === 'VIDEO') { <i class="bi bi-play-circle-fill text-danger"></i> }
+                                  @else if(section.typeContenu === 'TEXTE') { <i class="bi bi-file-text-fill text-primary"></i> }
+                                  @else { <i class="bi bi-image-fill text-success"></i> }
+                                </div>
+                                <div class="lesson-info">
+                                  <span class="lesson-title">{{ section.titre }}</span>
+                                  @if(section.typeContenu === 'TEXTE') {
+                                    <p class="lesson-excerpt">{{ section.contenu | slice:0:100 }}...</p>
+                                  }
+                                </div>
+                              </div>
+                            } @empty {
+                              <div class="empty-lesson">Aucune leçon.</div>
+                            }
+                          </div>
+                        </details>
+                      } @empty {
+                        <div class="p-3 text-muted">Aucun chapitre.</div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+      </div>
+    </section>
+  </main>
 </div>
